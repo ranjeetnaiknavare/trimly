@@ -13,6 +13,10 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   themeColor: "#E11D48",
   viewport: "width=device-width, initial-scale=1, maximum-scale=1",
+  icons: {
+    icon: [{ url: "/favicon.ico" }, { url: "/favicon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/icons/icon-192x192.png" }],
+  },
     generator: 'v0.dev'
 }
 

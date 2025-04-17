@@ -7,6 +7,7 @@ import { SalonCard } from "@/components/salon-card"
 import { CategoryPill } from "@/components/category-pill"
 import { PromotionBanner } from "@/components/promotion-banner"
 import { BottomNav } from "@/components/bottom-nav"
+import { TrimlyLogo } from "@/components/trimly-logo"
 
 export default function HomePage() {
   return (
@@ -18,7 +19,7 @@ export default function HomePage() {
             <MapPin className="w-4 h-4 text-rose-500" />
             <span className="text-sm font-medium">Kothrud, Pune</span>
           </Link>
-          <h1 className="text-xl font-bold text-rose-600">Trimly</h1>
+          <TrimlyLogo size="sm" />
           <Link href="/notifications">
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="w-5 h-5" />
@@ -72,6 +73,25 @@ export default function HomePage() {
             description="Use code TRIMLY20 at any salon"
             imageUrl="/gradient-salon-promo.png"
           />
+        </div>
+
+        {/* Business Owner Card */}
+        <div className="container px-4 mb-6">
+          <Link href="/business">
+            <Card className="bg-gradient-to-r from-purple-500 to-rose-500 text-white border-none hover:shadow-lg transition-shadow">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-bold text-lg">Own a Salon or Spa?</h3>
+                    <p className="text-sm text-white/90 mt-1">Join Trimly to grow your business</p>
+                  </div>
+                  <Button variant="secondary" size="sm" className="bg-white text-rose-600 hover:bg-gray-100">
+                    Register Now
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
 
         {/* Booking Tabs */}
