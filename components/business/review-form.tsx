@@ -101,13 +101,15 @@ export function BusinessReviewForm({ formData }: BusinessReviewFormProps) {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-gray-500">Email</p>
-              <p className="font-medium">{formData.businessEmail}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Phone</p>
+              <p className="text-sm text-gray-500">Phone (Primary)</p>
               <p className="font-medium">{formData.businessPhone}</p>
             </div>
+            {formData.businessEmail && (
+              <div>
+                <p className="text-sm text-gray-500">Email (Optional)</p>
+                <p className="font-medium">{formData.businessEmail}</p>
+              </div>
+            )}
           </div>
           {formData.description && (
             <div>
@@ -217,13 +219,15 @@ export function BusinessReviewForm({ formData }: BusinessReviewFormProps) {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-gray-500">Email</p>
-              <p className="font-medium">{formData.ownerEmail}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Phone</p>
+              <p className="text-sm text-gray-500">Phone (Primary)</p>
               <p className="font-medium">{formData.ownerPhone}</p>
             </div>
+            {formData.ownerEmail && (
+              <div>
+                <p className="text-sm text-gray-500">Email (Optional)</p>
+                <p className="font-medium">{formData.ownerEmail}</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

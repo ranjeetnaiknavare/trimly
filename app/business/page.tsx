@@ -211,11 +211,15 @@ export default function BusinessLandingPage() {
                 <div className="bg-rose-100 text-rose-600 px-3 py-1 rounded-full text-sm font-medium">Most Popular</div>
               </div>
               <h3 className="text-xl font-bold mb-2">Standard Plan</h3>
-              <div className="text-3xl font-bold mb-1">
-                ₹999<span className="text-lg text-gray-500">/month</span>
+              <div className="text-3xl font-bold mb-1 flex items-center justify-center">
+                <span className="text-rose-600 mr-1">₹</span>299<span className="text-lg text-gray-500">/month</span>
               </div>
               <p className="text-gray-600 mb-6">Everything you need to manage your salon business</p>
               <ul className="space-y-3 mb-6 text-left">
+                <li className="flex items-start">
+                  <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
+                  <span>Up to 5 users for 1 location</span>
+                </li>
                 <li className="flex items-start">
                   <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
                   <span>Unlimited appointments</span>
@@ -226,15 +230,11 @@ export default function BusinessLandingPage() {
                 </li>
                 <li className="flex items-start">
                   <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
-                  <span>Up to 5 staff members</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
                   <span>Customer database</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
-                  <span>Basic reporting</span>
+                  <span>Inventory management</span>
                 </li>
               </ul>
               <Link href="/business/register">
@@ -243,6 +243,24 @@ export default function BusinessLandingPage() {
               <p className="text-xs text-gray-500 mt-4">
                 *First month free. No credit card required to start your trial.
               </p>
+            </div>
+
+            <div className="mt-8 bg-gray-100 rounded-lg p-6 max-w-md mx-auto">
+              <h3 className="text-lg font-semibold mb-4">Additional Pricing</h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center pb-2 border-b border-gray-200">
+                  <span>Additional location</span>
+                  <span className="font-medium">
+                    <span className="text-rose-600">₹</span>249/month
+                  </span>
+                </div>
+                <div className="flex justify-between items-center pb-2 border-b border-gray-200">
+                  <span>Additional users (beyond 5)</span>
+                  <span className="font-medium">
+                    <span className="text-rose-600">₹</span>79/user/month
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </section>

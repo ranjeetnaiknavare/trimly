@@ -19,8 +19,8 @@ export default function BusinessRegistrationPage() {
     // Basic Info
     businessName: "",
     businessType: "",
-    businessEmail: "",
-    businessPhone: "",
+    businessEmail: "", // Now optional
+    businessPhone: "", // Primary identifier
     description: "",
 
     // Location
@@ -49,13 +49,15 @@ export default function BusinessRegistrationPage() {
 
     // Owner Info
     ownerName: "",
-    ownerEmail: "",
-    ownerPhone: "",
+    ownerEmail: "", // Now optional
+    ownerPhone: "", // Primary identifier
     password: "",
     confirmPassword: "",
+    otpVerified: false, // New field to track OTP verification
   })
 
-  const totalSteps = 7
+  // Reduced from 7 to 5 steps by consolidation
+  const totalSteps = 5
 
   const updateFormData = (stepData: Partial<typeof formData>) => {
     setFormData((prev) => ({ ...prev, ...stepData }))
@@ -85,18 +87,41 @@ export default function BusinessRegistrationPage() {
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
-        return <BusinessBasicInfoForm formData={formData} updateFormData={updateFormData} />
+        // Combined Business Information and Location
+        return (
+          <div className="space-y-8">
+            <div>
+              <h3 className="text-lg font-medium mb-4">Business Information</h3>
+              <BusinessBasicInfoForm formData={formData} updateFormData={updateFormData} />
+            </div>
+            <div>
+              <h3 className="text-lg font-medium mb-4">Business Location</h3>
+              <BusinessLocationForm formData={formData} updateFormData={updateFormData} />
+            </div>
+          </div>
+        )
       case 2:
-        return <BusinessLocationForm formData={formData} updateFormData={updateFormData} />
-      case 3:
+        // Business Hours remains as is
         return <BusinessHoursForm formData={formData} updateFormData={updateFormData} />
+      case 3:
+        // Combined Services and Photos
+        return (
+          <div className="space-y-8">
+            <div>
+              <h3 className="text-lg font-medium mb-4">Services Offered</h3>
+              <BusinessServicesForm formData={formData} updateFormData={updateFormData} />
+            </div>
+            <div>
+              <h3 className="text-lg font-medium mb-4">Photos & Gallery</h3>
+              <BusinessPhotosForm formData={formData} updateFormData={updateFormData} />
+            </div>
+          </div>
+        )
       case 4:
-        return <BusinessServicesForm formData={formData} updateFormData={updateFormData} />
-      case 5:
-        return <BusinessPhotosForm formData={formData} updateFormData={updateFormData} />
-      case 6:
+        // Owner Information remains as is
         return <BusinessOwnerForm formData={formData} updateFormData={updateFormData} />
-      case 7:
+      case 5:
+        // Review & Submit remains as is
         return <BusinessReviewForm formData={formData} />
       default:
         return null
@@ -106,18 +131,14 @@ export default function BusinessRegistrationPage() {
   const getStepTitle = () => {
     switch (currentStep) {
       case 1:
-        return "Business Information"
+        return "Business Details"
       case 2:
-        return "Business Location"
-      case 3:
         return "Business Hours"
+      case 3:
+        return "Services & Photos"
       case 4:
-        return "Services Offered"
-      case 5:
-        return "Photos & Gallery"
-      case 6:
         return "Owner Information"
-      case 7:
+      case 5:
         return "Review & Submit"
       default:
         return ""
@@ -125,22 +146,25 @@ export default function BusinessRegistrationPage() {
   }
 
   const isStepValid = () => {
-    // This is a simplified validation - in a real app, you'd have more comprehensive validation
+    // Updated validation to make email optional and require phone
     switch (currentStep) {
       case 1:
-        return !!formData.businessName && !!formData.businessType && !!formData.businessEmail
+        return (
+          !!formData.businessName &&
+          !!formData.businessType &&
+          !!formData.businessPhone &&
+          !!formData.address &&
+          !!formData.city &&
+          !!formData.pincode
+        )
       case 2:
-        return !!formData.address && !!formData.city && !!formData.pincode
-      case 3:
         return true // Hours are pre-filled
-      case 4:
+      case 3:
         return formData.services.length > 0
-      case 5:
-        return true // Photos are optional
-      case 6:
+      case 4:
         return (
           !!formData.ownerName &&
-          !!formData.ownerEmail &&
+          !!formData.ownerPhone &&
           !!formData.password &&
           formData.password === formData.confirmPassword
         )

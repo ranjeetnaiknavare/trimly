@@ -5,6 +5,7 @@ import { Eye, EyeOff } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Button } from "@/components/ui/button"
 
 interface BusinessOwnerFormProps {
   formData: {
@@ -13,6 +14,7 @@ interface BusinessOwnerFormProps {
     ownerPhone: string
     password: string
     confirmPassword: string
+    otpVerified?: boolean
   }
   updateFormData: (data: Partial<BusinessOwnerFormProps["formData"]>) => void
 }
@@ -21,6 +23,8 @@ export function BusinessOwnerForm({ formData, updateFormData }: BusinessOwnerFor
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [agreeTerms, setAgreeTerms] = useState(false)
+  const [otpSent, setOtpSent] = useState(false)
+  const [otp, setOtp] = useState("")
 
   const passwordsMatch = formData.password === formData.confirmPassword
   const passwordStrength = getPasswordStrength(formData.password)
@@ -40,6 +44,22 @@ export function BusinessOwnerForm({ formData, updateFormData }: BusinessOwnerFor
     return "medium"
   }
 
+  const handleSendOTP = () => {
+    // In a real app, this would send an OTP to the phone number
+    setOtpSent(true)
+    // Mock OTP for demo
+    console.log("OTP sent to", formData.ownerPhone)
+  }
+
+  const handleVerifyOTP = () => {
+    // In a real app, this would verify the OTP
+    if (otp.length === 6) {
+      updateFormData({ otpVerified: true })
+      // Mock verification for demo
+      console.log("OTP verified")
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="space-y-2">
@@ -54,26 +74,68 @@ export function BusinessOwnerForm({ formData, updateFormData }: BusinessOwnerFor
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="ownerEmail">Your Email *</Label>
+        <Label htmlFor="ownerPhone">
+          Your Phone * <span className="text-xs text-rose-600">(Required for login)</span>
+        </Label>
+        <div className="flex gap-2">
+          <Input
+            id="ownerPhone"
+            type="tel"
+            value={formData.ownerPhone}
+            onChange={(e) => updateFormData({ ownerPhone: e.target.value })}
+            placeholder="e.g. +91 98765 43210"
+            required
+            className="flex-1"
+          />
+          <Button
+            type="button"
+            onClick={handleSendOTP}
+            disabled={!formData.ownerPhone || otpSent}
+            variant="outline"
+            className="whitespace-nowrap"
+          >
+            {otpSent ? "OTP Sent" : "Send OTP"}
+          </Button>
+        </div>
+      </div>
+
+      {otpSent && (
+        <div className="space-y-2">
+          <Label htmlFor="otp">Enter OTP *</Label>
+          <div className="flex gap-2">
+            <Input
+              id="otp"
+              type="text"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              placeholder="Enter 6-digit OTP"
+              maxLength={6}
+              className="flex-1"
+            />
+            <Button
+              type="button"
+              onClick={handleVerifyOTP}
+              disabled={otp.length !== 6 || formData.otpVerified}
+              variant="outline"
+              className="whitespace-nowrap"
+            >
+              {formData.otpVerified ? "Verified" : "Verify OTP"}
+            </Button>
+          </div>
+          {formData.otpVerified && <p className="text-xs text-green-600">Phone number verified successfully!</p>}
+        </div>
+      )}
+
+      <div className="space-y-2">
+        <Label htmlFor="ownerEmail">
+          Your Email <span className="text-xs text-gray-500">(Optional)</span>
+        </Label>
         <Input
           id="ownerEmail"
           type="email"
           value={formData.ownerEmail}
           onChange={(e) => updateFormData({ ownerEmail: e.target.value })}
           placeholder="e.g. rahul@example.com"
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="ownerPhone">Your Phone *</Label>
-        <Input
-          id="ownerPhone"
-          type="tel"
-          value={formData.ownerPhone}
-          onChange={(e) => updateFormData({ ownerPhone: e.target.value })}
-          placeholder="e.g. +91 98765 43210"
-          required
         />
       </div>
 

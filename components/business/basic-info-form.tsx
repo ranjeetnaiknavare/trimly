@@ -58,19 +58,9 @@ export function BusinessBasicInfoForm({ formData, updateFormData }: BusinessBasi
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="businessEmail">Business Email *</Label>
-        <Input
-          id="businessEmail"
-          type="email"
-          value={formData.businessEmail}
-          onChange={(e) => updateFormData({ businessEmail: e.target.value })}
-          placeholder="e.g. contact@yoursalon.com"
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="businessPhone">Business Phone *</Label>
+        <Label htmlFor="businessPhone">
+          Business Phone * <span className="text-xs text-rose-600">(Primary contact for login)</span>
+        </Label>
         <Input
           id="businessPhone"
           type="tel"
@@ -78,6 +68,20 @@ export function BusinessBasicInfoForm({ formData, updateFormData }: BusinessBasi
           onChange={(e) => updateFormData({ businessPhone: e.target.value })}
           placeholder="e.g. +91 98765 43210"
           required
+        />
+        <p className="text-xs text-gray-500">We'll send an OTP to verify this number</p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="businessEmail">
+          Business Email <span className="text-xs text-gray-500">(Optional)</span>
+        </Label>
+        <Input
+          id="businessEmail"
+          type="email"
+          value={formData.businessEmail}
+          onChange={(e) => updateFormData({ businessEmail: e.target.value })}
+          placeholder="e.g. contact@yoursalon.com"
         />
       </div>
 
