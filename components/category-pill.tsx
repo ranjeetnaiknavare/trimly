@@ -1,12 +1,15 @@
+"use client"
+
 import { Scissors, SpadeIcon as Spa, MessageSquare, Brush } from "lucide-react"
 
 interface CategoryPillProps {
   icon: string
   label: string
   active?: boolean
+  onClick?: () => void
 }
 
-export function CategoryPill({ icon, label, active = false }: CategoryPillProps) {
+export function CategoryPill({ icon, label, active = false, onClick }: CategoryPillProps) {
   const getIcon = () => {
     switch (icon) {
       case "scissors":
@@ -29,6 +32,7 @@ export function CategoryPill({ icon, label, active = false }: CategoryPillProps)
       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full whitespace-nowrap text-sm font-medium ${
         active ? "bg-rose-100 text-rose-600" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
       }`}
+      onClick={onClick}
     >
       {getIcon()}
       <span>{label}</span>

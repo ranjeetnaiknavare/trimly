@@ -1,11 +1,12 @@
 import Link from "next/link"
-import { Search, MapPin, Clock, Calendar, User, Bell, Plus, Home } from "lucide-react"
+import { Search, MapPin, Clock, Calendar, User, Bell, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SalonCard } from "@/components/salon-card"
 import { CategoryPill } from "@/components/category-pill"
 import { PromotionBanner } from "@/components/promotion-banner"
+import { BottomNav } from "@/components/bottom-nav"
 
 export default function HomePage() {
   return (
@@ -13,10 +14,10 @@ export default function HomePage() {
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white shadow-sm">
         <div className="container flex items-center justify-between h-16 px-4">
-          <div className="flex items-center gap-2">
+          <Link href="/location" className="flex items-center gap-2">
             <MapPin className="w-4 h-4 text-rose-500" />
-            <span className="text-sm font-medium">Pune</span>
-          </div>
+            <span className="text-sm font-medium">Kothrud, Pune</span>
+          </Link>
           <h1 className="text-xl font-bold text-rose-600">Trimly</h1>
           <Link href="/notifications">
             <Button variant="ghost" size="icon" className="relative">
@@ -28,14 +29,17 @@ export default function HomePage() {
 
         {/* Search Bar */}
         <div className="container px-4 pb-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search salons, parlours, spas..."
-              className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
-            />
-          </div>
+          <Link href="/explore" className="block">
+            <div className="relative">
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search salons, parlours, spas..."
+                className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                readOnly
+              />
+            </div>
+          </Link>
         </div>
       </header>
 
@@ -43,11 +47,21 @@ export default function HomePage() {
         {/* Category Pills */}
         <div className="container px-4 py-4 overflow-x-auto no-scrollbar">
           <div className="flex gap-2">
-            <CategoryPill icon="scissors" label="Men's Salon" active />
-            <CategoryPill icon="spa" label="Ladies Parlour" />
-            <CategoryPill icon="massage" label="Spa & Massage" />
-            <CategoryPill icon="hair" label="Hair Studio" />
-            <CategoryPill icon="beauty" label="Beauty Lounge" />
+            <Link href="/explore?category=Men's Salon">
+              <CategoryPill icon="scissors" label="Men's Salon" active />
+            </Link>
+            <Link href="/explore?category=Ladies Parlour">
+              <CategoryPill icon="spa" label="Ladies Parlour" />
+            </Link>
+            <Link href="/explore?category=Spa & Massage">
+              <CategoryPill icon="massage" label="Spa & Massage" />
+            </Link>
+            <Link href="/explore?category=Hair Studio">
+              <CategoryPill icon="hair" label="Hair Studio" />
+            </Link>
+            <Link href="/explore?category=Beauty Lounge">
+              <CategoryPill icon="beauty" label="Beauty Lounge" />
+            </Link>
           </div>
         </div>
 
@@ -129,7 +143,7 @@ export default function HomePage() {
                   reviews={87}
                   distance="5.2 km"
                   waitTime="30 min"
-                  imageUrl="/placeholder.svg?height=80&width=80&query=beauty lounge interior"
+                  imageUrl="/elegant-beauty-space.png"
                   category="Beauty Lounge"
                 />
               </div>
@@ -141,20 +155,24 @@ export default function HomePage() {
         <div className="container px-4 mb-6">
           <h2 className="text-lg font-semibold mb-3">Quick Actions</h2>
           <div className="grid grid-cols-2 gap-3">
-            <Card className="bg-gradient-to-br from-rose-50 to-rose-100 border-none">
-              <CardContent className="p-4 flex flex-col items-center text-center">
-                <Calendar className="h-8 w-8 text-rose-600 mb-2" />
-                <h3 className="font-medium">Book Appointment</h3>
-                <p className="text-xs text-muted-foreground mt-1">Schedule for later</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-none">
-              <CardContent className="p-4 flex flex-col items-center text-center">
-                <Clock className="h-8 w-8 text-purple-600 mb-2" />
-                <h3 className="font-medium">Join Queue</h3>
-                <p className="text-xs text-muted-foreground mt-1">Get in line now</p>
-              </CardContent>
-            </Card>
+            <Link href="/explore">
+              <Card className="bg-gradient-to-br from-rose-50 to-rose-100 border-none">
+                <CardContent className="p-4 flex flex-col items-center text-center">
+                  <Calendar className="h-8 w-8 text-rose-600 mb-2" />
+                  <h3 className="font-medium">Book Appointment</h3>
+                  <p className="text-xs text-muted-foreground mt-1">Schedule for later</p>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link href="/explore">
+              <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-none">
+                <CardContent className="p-4 flex flex-col items-center text-center">
+                  <Clock className="h-8 w-8 text-purple-600 mb-2" />
+                  <h3 className="font-medium">Join Queue</h3>
+                  <p className="text-xs text-muted-foreground mt-1">Get in line now</p>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
         </div>
 
@@ -162,9 +180,11 @@ export default function HomePage() {
         <div className="container px-4 mb-8">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold">Family Profiles</h2>
-            <Button variant="ghost" size="sm" className="text-rose-600">
-              Manage
-            </Button>
+            <Link href="/profile/family-members">
+              <Button variant="ghost" size="sm" className="text-rose-600">
+                Manage
+              </Button>
+            </Link>
           </div>
           <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
             <div className="flex flex-col items-center min-w-[72px]">
@@ -173,37 +193,20 @@ export default function HomePage() {
               </div>
               <span className="text-sm">You</span>
             </div>
-            <div className="flex flex-col items-center min-w-[72px]">
-              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-1 border-2 border-dashed border-gray-300">
-                <Plus className="h-6 w-6 text-gray-400" />
+            <Link href="/profile/family-members">
+              <div className="flex flex-col items-center min-w-[72px]">
+                <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-1 border-2 border-dashed border-gray-300">
+                  <Plus className="h-6 w-6 text-gray-400" />
+                </div>
+                <span className="text-sm text-gray-500">Add</span>
               </div>
-              <span className="text-sm text-gray-500">Add</span>
-            </div>
+            </Link>
           </div>
         </div>
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="sticky bottom-0 bg-white border-t border-gray-200 py-2">
-        <div className="container grid grid-cols-4">
-          <Link href="/" className="flex flex-col items-center text-rose-600">
-            <Home className="h-5 w-5" />
-            <span className="text-xs mt-1">Home</span>
-          </Link>
-          <Link href="/explore" className="flex flex-col items-center text-gray-500">
-            <Search className="h-5 w-5" />
-            <span className="text-xs mt-1">Explore</span>
-          </Link>
-          <Link href="/bookings" className="flex flex-col items-center text-gray-500">
-            <Calendar className="h-5 w-5" />
-            <span className="text-xs mt-1">Bookings</span>
-          </Link>
-          <Link href="/profile" className="flex flex-col items-center text-gray-500">
-            <User className="h-5 w-5" />
-            <span className="text-xs mt-1">Profile</span>
-          </Link>
-        </div>
-      </nav>
+      <BottomNav active="home" />
     </div>
   )
 }
