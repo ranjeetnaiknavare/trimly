@@ -1,7 +1,24 @@
 import { Clock, Calendar, Users, MapPin } from "lucide-react"
 
 interface BookingSummaryProps {
-  salon: any
+  salon: {
+    name: string
+    location: string
+    services: Array<{
+      id: string
+      name: string
+      description: string
+      price: number
+      duration: number
+      popular?: boolean
+    }>
+    familyMembers: Array<{
+      id: string
+      name: string
+      relation: string
+      selected?: boolean
+    }>
+  }
   selectedServices: string[]
   bookingType: "queue" | "appointment"
   date: string | null
@@ -21,18 +38,24 @@ export function BookingSummary({
   totalAmount,
   totalDuration,
 }: BookingSummaryProps) {
-  // Get service names
-  const serviceNames = selectedServices
+  // Get service names and details
+  const serviceDetails = selectedServices
     .map((id) => {
-      const service = salon.services.find((s: any) => s.id === id)
-      return service?.name || ""
+      const service = salon.services.find((s) => s.id === id)
+      return service
+        ? {
+            name: service.name,
+            duration: service.duration,
+            price: service.price,
+          }
+        : null
     })
     .filter(Boolean)
 
   // Get family member names
   const memberNames = familyMembers
     .map((id) => {
-      const member = salon.familyMembers.find((m: any) => m.id === id)
+      const member = salon.familyMembers.find((m) => m.id === id)
       return member?.name || ""
     })
     .filter(Boolean)
@@ -83,19 +106,15 @@ export function BookingSummary({
       <div className="bg-white rounded-lg border border-gray-100 p-4">
         <h3 className="font-medium mb-2">Services</h3>
         <div className="space-y-2">
-          {serviceNames.map((name, index) => {
-            const service = salon.services.find((s: any) => s.name === name)
-
-            return (
-              <div key={index} className="flex justify-between text-sm">
-                <div>
-                  <p>{name}</p>
-                  <p className="text-xs text-gray-500">{service?.duration} min</p>
-                </div>
-                <p>₹{service?.price}</p>
+          {serviceDetails.map((service, index) => (
+            <div key={index} className="flex justify-between text-sm">
+              <div>
+                <p>{service?.name}</p>
+                <p className="text-xs text-gray-500">{service?.duration} min</p>
               </div>
-            )
-          })}
+              <p>₹{service?.price}</p>
+            </div>
+          ))}
 
           <div className="border-t border-gray-100 pt-2 mt-2">
             <div className="flex justify-between font-medium">

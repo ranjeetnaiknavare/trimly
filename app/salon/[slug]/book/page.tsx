@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { ArrowLeft, Calendar, Clock, ChevronRight, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -109,13 +110,21 @@ const generateTimeSlots = () => {
 }
 
 export default function BookingPage({ params }: { params: { slug: string } }) {
+  const searchParams = useSearchParams()
+  const initialBookingType = searchParams.get("type") === "queue" ? "queue" : "appointment"
+
   const salon = getSalonData(params.slug)
-  const [bookingType, setBookingType] = useState<"queue" | "appointment">("appointment")
+  const [bookingType, setBookingType] = useState<"queue" | "appointment">(initialBookingType)
   const [selectedServices, setSelectedServices] = useState<string[]>([])
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedFamilyMembers, setSelectedFamilyMembers] = useState<string[]>(["fm1"]) // Default to "You"
   const [currentStep, setCurrentStep] = useState(1)
+
+  // Set initial booking type from URL parameter
+  useEffect(() => {
+    setBookingType(initialBookingType)
+  }, [initialBookingType])
 
   const timeSlots = generateTimeSlots()
 
@@ -151,7 +160,12 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
   }
 
   const handlePrevStep = () => {
-    setCurrentStep((prev) => Math.max(1, prev - 1))
+    if (currentStep === 1) {
+      // Go back to salon page
+      window.history.back()
+    } else {
+      setCurrentStep((prev) => Math.max(1, prev - 1))
+    }
   }
 
   const handleSubmit = () => {
@@ -297,7 +311,7 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white shadow-sm">
         <div className="container flex items-center h-16 px-4">
-          <Button variant="ghost" size="icon" onClick={handlePrevStep} disabled={currentStep === 1}>
+          <Button variant="ghost" size="icon" onClick={handlePrevStep}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex-1 text-center">

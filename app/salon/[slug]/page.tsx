@@ -21,7 +21,7 @@ const getSalonData = (slug: string) => {
     location: "Shop 7, Mayur Complex, Kothrud, Pune",
     phone: "+91 98765 43210",
     rating: 4.8,
-    reviews: 124,
+    reviewCount: 124, // Changed from 'reviews' to 'reviewCount' to avoid confusion
     waitTime: "10 min",
     distance: "1.2 km",
     isOpen: true,
@@ -70,7 +70,8 @@ const getSalonData = (slug: string) => {
         popular: false,
       },
     ],
-    reviews: [
+    reviewItems: [
+      // Changed from 'reviews' to 'reviewItems' to avoid confusion
       {
         id: "r1",
         userName: "Rahul S.",
@@ -157,7 +158,7 @@ export default function SalonDetailPage({ params }: { params: { slug: string } }
                 <div className="flex items-center">
                   <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                   <span className="ml-1 text-sm font-medium">{salon.rating}</span>
-                  <span className="ml-1 text-xs text-gray-500">({salon.reviews} reviews)</span>
+                  <span className="ml-1 text-xs text-gray-500">({salon.reviewCount} reviews)</span>
                 </div>
                 <div className="flex items-center ml-4">
                   <Clock className="w-4 h-4 text-gray-400" />
@@ -180,14 +181,18 @@ export default function SalonDetailPage({ params }: { params: { slug: string } }
 
           {/* Quick Actions */}
           <div className="flex gap-2 mt-4">
-            <Button className="flex-1 bg-rose-600 hover:bg-rose-700">
-              <Clock className="w-4 h-4 mr-2" />
-              Join Queue
-            </Button>
-            <Button variant="outline" className="flex-1 border-rose-200 text-rose-600 hover:bg-rose-50">
-              <Calendar className="w-4 h-4 mr-2" />
-              Book Appointment
-            </Button>
+            <Link href={`/salon/${params.slug}/book?type=queue`} className="flex-1">
+              <Button className="w-full bg-rose-600 hover:bg-rose-700">
+                <Clock className="w-4 h-4 mr-2" />
+                Join Queue
+              </Button>
+            </Link>
+            <Link href={`/salon/${params.slug}/book?type=appointment`} className="flex-1">
+              <Button variant="outline" className="w-full border-rose-200 text-rose-600 hover:bg-rose-50">
+                <Calendar className="w-4 h-4 mr-2" />
+                Book Appointment
+              </Button>
+            </Link>
           </div>
         </div>
 
@@ -223,7 +228,7 @@ export default function SalonDetailPage({ params }: { params: { slug: string } }
                   <div className="flex items-center">
                     <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
                     <span className="ml-1 text-lg font-bold">{salon.rating}</span>
-                    <span className="ml-1 text-sm text-gray-500">({salon.reviews} reviews)</span>
+                    <span className="ml-1 text-sm text-gray-500">({salon.reviewCount} reviews)</span>
                   </div>
                 </div>
                 <Button variant="outline" size="sm" className="text-rose-600 border-rose-200">
@@ -233,8 +238,8 @@ export default function SalonDetailPage({ params }: { params: { slug: string } }
               </div>
 
               <div className="space-y-4">
-                {Array.isArray(salon.reviews) ? (
-                  salon.reviews.map((review) => <ReviewCard key={review.id} review={review} />)
+                {Array.isArray(salon.reviewItems) && salon.reviewItems.length > 0 ? (
+                  salon.reviewItems.map((review) => <ReviewCard key={review.id} review={review} />)
                 ) : (
                   <p>No reviews available</p>
                 )}
@@ -279,10 +284,14 @@ export default function SalonDetailPage({ params }: { params: { slug: string } }
       {/* Bottom CTA */}
       <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4">
         <div className="container flex gap-2">
-          <Button className="flex-1 bg-rose-600 hover:bg-rose-700">Join Queue</Button>
-          <Button variant="outline" className="flex-1 border-rose-200 text-rose-600 hover:bg-rose-50">
-            Book Appointment
-          </Button>
+          <Link href={`/salon/${params.slug}/book?type=queue`} className="flex-1">
+            <Button className="w-full bg-rose-600 hover:bg-rose-700">Join Queue</Button>
+          </Link>
+          <Link href={`/salon/${params.slug}/book?type=appointment`} className="flex-1">
+            <Button variant="outline" className="w-full border-rose-200 text-rose-600 hover:bg-rose-50">
+              Book Appointment
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

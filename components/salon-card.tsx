@@ -14,8 +14,10 @@ interface SalonCardProps {
 }
 
 export function SalonCard({ name, location, rating, reviews, distance, waitTime, imageUrl, category }: SalonCardProps) {
+  const slug = name.toLowerCase().replace(/\s+/g, "-")
+
   return (
-    <Link href={`/salon/${name.toLowerCase().replace(/\s+/g, "-")}`}>
+    <Link href={`/salon/${slug}`}>
       <div className="flex items-start p-3 bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
         <div className="flex-shrink-0 mr-3">
           <img src={imageUrl || "/placeholder.svg"} alt={name} className="w-20 h-20 rounded-lg object-cover" />
@@ -49,10 +51,16 @@ export function SalonCard({ name, location, rating, reviews, distance, waitTime,
           </div>
 
           <div className="flex mt-2">
-            <button className="text-xs font-medium text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full mr-2">
-              Join Queue
-            </button>
-            <button className="text-xs font-medium text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full">Book</button>
+            <Link href={`/salon/${slug}/book?type=queue`}>
+              <button className="text-xs font-medium text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full mr-2">
+                Join Queue
+              </button>
+            </Link>
+            <Link href={`/salon/${slug}/book?type=appointment`}>
+              <button className="text-xs font-medium text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full">
+                Book
+              </button>
+            </Link>
           </div>
         </div>
       </div>
