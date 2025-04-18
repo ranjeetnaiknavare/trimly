@@ -1,69 +1,91 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useCallback } from "react"
+import { trackInteraction } from "@/lib/track-interaction"
 
 interface InteractionTrackerProps {
   salonId: string
   salonName: string
-  onInteraction?: (type: string, data: any) => void
 }
 
-export function InteractionTracker({ salonId, salonName }: { salonId: string; salonName: string }) {
+export function InteractionTracker({ salonId, salonName }: InteractionTrackerProps) {
+  // Track page view on component mount
   useEffect(() => {
-    // Set up event listeners for tracking
-    const trackCall = () => {
-      const phoneLinks = document.querySelectorAll("[data-phone-link]")
-
-      phoneLinks.forEach((link) => {
-        link.addEventListener("click", (e) => {
-          // Log the call interaction
-          fetch("/api/analytics/track-call", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              salonId,
-              salonName,
-              timestamp: new Date().toISOString(),
-              // In a real app, we might include user info if available
-            }),
-          }).catch((err) => console.error("Failed to track call:", err))
-        })
-      })
-    }
-
-    const trackShare = () => {
-      const shareButtons = document.querySelectorAll("[data-share-button]")
-
-      shareButtons.forEach((button) => {
-        button.addEventListener("click", (e) => {
-          // Get the platform from the data attribute
-          const platform = (e.currentTarget as HTMLElement).dataset.sharePlatform || "unknown"
-
-          // Log the share interaction
-          fetch("/api/analytics/track-share", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              salonId,
-              salonName,
-              platform,
-              timestamp: new Date().toISOString(),
-              // In a real app, we might include user info if available
-            }),
-          }).catch((err) => console.error("Failed to track share:", err))
-        })
-      })
-    }
-
-    // Initialize tracking
-    trackCall()
-    trackShare()
-
-    // Cleanup
-    return () => {
-      // In a real implementation, we would remove event listeners
-    }
+    trackInteraction({
+      type: "page_view",
+      salonId,
+      salonName,
+      metadata: {
+        path: window.location.pathname,
+        referrer: document.referrer,
+      },
+    })
   }, [salonId, salonName])
 
-  return null // This component doesn't render anything
+  // Use useCallback instead of useEffectEvent for tracking phone calls
+  const trackPhoneCall = useCallback(
+    (phoneNumber: string) => {
+      trackInteraction({
+        type: "phone_call",
+        salonId,
+        salonName,
+        metadata: {
+          phoneNumber,
+        },
+      })
+    },
+    [salonId, salonName],
+  )
+
+  // Use useCallback instead of useEffectEvent for tracking shares
+  const trackShare = useCallback(
+    (platform: string) => {
+      trackInteraction({
+        type: "share",
+        salonId,
+        salonName,
+        metadata: {
+          platform,
+        },
+      })
+    },
+    [salonId, salonName],
+  )
+
+  // Set up event listeners for phone calls and shares
+  useEffect(() => {
+    const phoneLinks = document.querySelectorAll("[data-phone-link]")
+    const shareButtons = document.querySelectorAll("[data-share-button]")
+
+    const handlePhoneClick = (e: Event) => {
+      const link = e.currentTarget as HTMLAnchorElement
+      const phoneNumber = link.href.replace("tel:", "")
+      trackPhoneCall(phoneNumber)
+    }
+
+    const handleShareClick = (e: Event) => {
+      const button = e.currentTarget as HTMLButtonElement
+      const platform = button.dataset.sharePlatform || "unknown"
+      trackShare(platform)
+    }
+
+    phoneLinks.forEach((link) => {
+      link.addEventListener("click", handlePhoneClick)
+    })
+
+    shareButtons.forEach((button) => {
+      button.addEventListener("click", handleShareClick)
+    })
+
+    return () => {
+      phoneLinks.forEach((link) => {
+        link.removeEventListener("click", handlePhoneClick)
+      })
+      shareButtons.forEach((button) => {
+        button.removeEventListener("click", handleShareClick)
+      })
+    }
+  }, [trackPhoneCall, trackShare])
+
+  return null
 }
