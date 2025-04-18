@@ -1,85 +1,150 @@
 "use client"
 
-import { useState, useCallback } from "react"
-import { Phone, Share2, Heart } from "lucide-react"
+import React, { useState } from "react"
+import { Heart, Share2, MessageSquare, Facebook, Twitter, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { trackPhoneCall, trackShare } from "@/lib/track-interaction"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { trackInteraction } from "@/lib/track-interaction"
 
 interface SalonActionsProps {
   salonId: string
   salonName: string
-  phoneNumber: string
-  isFavorite?: boolean
-  onToggleFavorite?: () => void
+  initialFavorite?: boolean
 }
 
-export function SalonActions({
-  salonId,
-  salonName,
-  phoneNumber,
-  isFavorite = false,
-  onToggleFavorite,
-}: SalonActionsProps) {
-  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
-  const [shareUrl, setShareUrl] = useState("")
+export function SalonActions({ salonId, salonName, initialFavorite = false }: SalonActionsProps) {
+  const [isFavorite, setIsFavorite] = useState(initialFavorite)
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
+  const [copied, setCopied] = useState(false)
 
-  // Use useCallback instead of useEffectEvent
-  const handlePhoneClick = useCallback(() => {
-    trackPhoneCall(salonId)
-    window.location.href = `tel:${phoneNumber}`
-  }, [salonId, phoneNumber])
-
-  // Use useCallback instead of useEffectEvent
-  const handleShareClick = useCallback(() => {
-    setShareUrl(window.location.href)
-    setIsShareDialogOpen(true)
-    trackShare(salonId)
-  }, [salonId])
-
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(shareUrl)
+  const toggleFavorite = () => {
+    // In a real app, this would update the favorite status in the database
+    setIsFavorite(!isFavorite)
   }
 
-  return (
-    <div className="flex items-center justify-between">
-      <Button variant="outline" size="sm" onClick={handlePhoneClick}>
-        <Phone className="h-4 w-4 mr-2" />
-        Call
-      </Button>
-      <Button variant="outline" size="sm" onClick={handleShareClick}>
-        <Share2 className="h-4 w-4 mr-2" />
-        Share
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onToggleFavorite}
-        className={isFavorite ? "text-rose-600 border-rose-200 hover:bg-rose-50" : ""}
-      >
-        <Heart className={`h-4 w-4 mr-2 ${isFavorite ? "fill-rose-600" : ""}`} />
-        {isFavorite ? "Saved" : "Save"}
-      </Button>
+  const handleSharePlatform = (platform: string) => {
+    const salonSlug = salonName.toLowerCase().replace(/\s+/g, "-")
+    const shareUrl = `https://trimly.app/salon/${salonSlug}`
 
-      <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
+    // Track the share interaction
+    trackInteraction("share", {
+      salonId,
+      salonName,
+      platform,
+      timestamp: new Date().toISOString(),
+    })
+
+    let shareLink = ""
+
+    switch (platform) {
+      case "whatsapp":
+        shareLink = `https://wa.me/?text=Check out ${salonName} on Trimly: ${shareUrl}`
+        break
+      case "facebook":
+        shareLink = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`
+        break
+      case "twitter":
+        shareLink = `https://twitter.com/intent/tweet?text=Check out ${salonName} on Trimly: ${shareUrl}`
+        break
+      case "email":
+        shareLink = `mailto:?subject=Check out ${salonName} on Trimly&body=${shareUrl}`
+        break
+      case "copy":
+        navigator.clipboard.writeText(shareUrl)
+        setCopied(true)
+        return
+      default:
+        console.warn(`Unsupported share platform: ${platform}`)
+        return
+    }
+
+    window.open(shareLink, "_blank")
+    setShareDialogOpen(false)
+  }
+
+  const shareOptions = [
+    { platform: "whatsapp", icon: <MessageSquare className="h-4 w-4" />, label: "WhatsApp" },
+    { platform: "facebook", icon: <Facebook className="h-4 w-4" />, label: "Facebook" },
+    { platform: "twitter", icon: <Twitter className="h-4 w-4" />, label: "Twitter" },
+    { platform: "email", icon: <Mail className="h-4 w-4" />, label: "Email" },
+  ]
+
+  return (
+    <>
+      <div className="flex gap-2">
+        <Button
+          variant="secondary"
+          size="icon"
+          className={`rounded-full ${isFavorite ? "bg-rose-100" : "bg-white/80 backdrop-blur-sm"}`}
+          onClick={toggleFavorite}
+        >
+          <Heart
+            className={`w-4 h-4 ${isFavorite ? "text-rose-600" : ""}`}
+            fill={isFavorite ? "currentColor" : "none"}
+          />
+        </Button>
+        <Button
+          variant="secondary"
+          size="icon"
+          className="rounded-full bg-white/80 backdrop-blur-sm"
+          onClick={() => setShareDialogOpen(true)}
+          data-share-button
+          data-share-platform="dialog"
+        >
+          <Share2 className="w-4 h-4" />
+        </Button>
+      </div>
+
+      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Share {salonName}</DialogTitle>
-            <DialogDescription>Copy the link below to share this salon with others.</DialogDescription>
+            <DialogDescription>Choose how you'd like to share this salon with others</DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="share-url">Share URL</Label>
-              <div className="flex gap-2">
-                <Input id="share-url" value={shareUrl} readOnly />
-                <Button onClick={handleCopyLink}>Copy</Button>
+          <div className="grid grid-cols-2 gap-4 py-4">
+            {shareOptions.map((option) => (
+              <Button
+                key={option.platform}
+                variant="outline"
+                className="flex flex-col items-center justify-center h-24"
+                onClick={() => handleSharePlatform(option.platform)}
+                data-share-button
+                data-share-platform={option.platform}
+              >
+                <div className="h-10 w-10 rounded-full bg-gray-500 flex items-center justify-center mb-2">
+                  {React.cloneElement(option.icon, { className: "h-6 w-6 text-white" })}
+                </div>
+                <span>{option.label}</span>
+              </Button>
+            ))}
+            <Button
+              variant="outline"
+              className="flex flex-col items-center justify-center h-24"
+              onClick={() => handleSharePlatform("copy")}
+              data-share-button
+              data-share-platform="copy"
+            >
+              <div className="h-10 w-10 rounded-full bg-gray-500 flex items-center justify-center mb-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                  />
+                </svg>
               </div>
-            </div>
+              <span>{copied ? "Copied!" : "Copy Link"}</span>
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   )
 }
