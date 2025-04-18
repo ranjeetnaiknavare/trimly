@@ -26,8 +26,8 @@ export function BottomNav() {
           ? "profile"
           : pathname === "/profile?tab=bookings"
             ? "bookings"
-            : pathname === "/coupons"
-              ? "coupons"
+            : pathname === "/ads"
+              ? "ads"
               : pathname === "/login"
                 ? "login"
                 : null
@@ -68,13 +68,13 @@ export function BottomNav() {
           <span className="text-xs mt-1">Bookings</span>
         </Link>
         <Link
-          href="/coupons"
+          href="/ads"
           className={`flex flex-col items-center justify-center w-full h-full ${
-            active === "coupons" ? "text-rose-600" : "text-gray-500"
+            active === "ads" ? "text-rose-600" : "text-gray-500"
           }`}
         >
           <Tag className="h-5 w-5" />
-          <span className="text-xs mt-1">Coupons</span>
+          <span className="text-xs mt-1">Ads</span>
         </Link>
         {user ? (
           <DropdownMenu>

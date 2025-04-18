@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Search, MapPin, Clock, Calendar, User, Bell, Plus } from "lucide-react"
+import { Search, MapPin, Clock, Calendar, User, Bell, Plus, Tag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -84,7 +84,9 @@ export default function HomePage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-bold text-lg">Own a Salon or Spa?</h3>
-                    <p className="text-sm text-white/90 mt-1">Join Trimly to grow your business</p>
+                    <p className="text-sm text-white/90 mt-1">
+                      Join Trimly to grow your business with bookings & local ads
+                    </p>
                   </div>
                   <Button variant="secondary" size="sm" className="bg-white text-rose-600 hover:bg-gray-100">
                     Register Now
@@ -226,6 +228,30 @@ export default function HomePage() {
               </div>
             </Link>
           </div>
+        </div>
+
+        {/* Ad Banner */}
+        <div className="container px-4 mb-8">
+          <Link href="/ads">
+            <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-none hover:shadow-lg transition-shadow overflow-hidden">
+              <CardContent className="p-4 flex items-center">
+                <div className="flex-1">
+                  <h3 className="font-bold text-lg">Advertise Your Business</h3>
+                  <p className="text-sm text-white/90 mt-1">
+                    Reach local customers with targeted ads starting at just ₹199/day
+                  </p>
+                  <Button variant="secondary" size="sm" className="mt-2 bg-white text-purple-600 hover:bg-gray-100">
+                    Learn More
+                  </Button>
+                </div>
+                <div className="hidden md:block w-24 h-24 relative">
+                  <div className="absolute inset-0 bg-white/20 rounded-full flex items-center justify-center">
+                    <Tag className="h-10 w-10 text-white" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
       </main>
 

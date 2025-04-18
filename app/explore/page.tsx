@@ -254,17 +254,18 @@ export default function ExplorePage() {
           {filteredSalons.length > 0 ? (
             <div className="space-y-4">
               {filteredSalons.map((salon, index) => (
-                <SalonCard
-                  key={index}
-                  name={salon.name}
-                  location={salon.location}
-                  rating={salon.rating}
-                  reviews={salon.reviews}
-                  distance={salon.distance}
-                  waitTime={salon.waitTime}
-                  imageUrl={salon.imageUrl}
-                  category={salon.category}
-                />
+                <Link href={`/salon/${salon.name.toLowerCase().replace(/\s+/g, "-")}`} key={index} className="block">
+                  <SalonCard
+                    name={salon.name}
+                    location={salon.location}
+                    rating={salon.rating}
+                    reviews={salon.reviews}
+                    distance={salon.distance}
+                    waitTime={salon.waitTime}
+                    imageUrl={salon.imageUrl}
+                    category={salon.category}
+                  />
+                </Link>
               ))}
             </div>
           ) : (

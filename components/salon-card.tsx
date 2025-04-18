@@ -1,6 +1,5 @@
 import { Star, Clock, MapPin } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import Link from "next/link"
 
 interface SalonCardProps {
   name: string
@@ -14,56 +13,39 @@ interface SalonCardProps {
 }
 
 export function SalonCard({ name, location, rating, reviews, distance, waitTime, imageUrl, category }: SalonCardProps) {
-  const slug = name.toLowerCase().replace(/\s+/g, "-")
-
   return (
-    <Link href={`/salon/${slug}`}>
-      <div className="flex items-start p-3 bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-        <div className="flex-shrink-0 mr-3">
-          <img src={imageUrl || "/placeholder.svg"} alt={name} className="w-20 h-20 rounded-lg object-cover" />
+    <div className="bg-white rounded-lg overflow-hidden border border-gray-100 hover:shadow-md transition-shadow">
+      <div className="flex">
+        <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gray-200 relative">
+          <img src={imageUrl || "/placeholder.svg"} alt={name} className="w-full h-full object-cover" />
+          {category && (
+            <div className="absolute top-2 left-2">
+              <Badge variant="outline" className="bg-white/80 backdrop-blur-sm text-xs">
+                {category}
+              </Badge>
+            </div>
+          )}
         </div>
-        <div className="flex-1">
-          <div className="flex items-start justify-between">
-            <div>
-              <h3 className="font-medium text-gray-900">{name}</h3>
-              <div className="flex items-center text-sm text-gray-500 mt-0.5">
-                <MapPin className="w-3 h-3 mr-1" />
-                <span>{location}</span>
-                <span className="mx-1.5">•</span>
-                <span>{distance}</span>
-              </div>
-            </div>
-            <Badge variant="outline" className="bg-rose-50 text-rose-600 border-rose-200">
-              {category}
-            </Badge>
+        <div className="flex-1 p-3">
+          <h3 className="font-medium text-gray-900">{name}</h3>
+          <div className="flex items-center mt-1 text-xs text-gray-500">
+            <MapPin className="w-3 h-3 mr-1" />
+            <span>{location}</span>
           </div>
-
           <div className="flex items-center mt-2">
-            <div className="flex items-center">
-              <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-              <span className="ml-1 text-sm font-medium">{rating}</span>
-              <span className="ml-1 text-xs text-gray-500">({reviews})</span>
-            </div>
-            <div className="flex items-center ml-4">
-              <Clock className="w-4 h-4 text-gray-400" />
-              <span className="ml-1 text-sm">{waitTime} wait</span>
-            </div>
+            <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+            <span className="ml-1 text-xs font-medium">{rating}</span>
+            <span className="ml-1 text-xs text-gray-500">({reviews} reviews)</span>
           </div>
-
-          <div className="flex mt-2">
-            <Link href={`/salon/${slug}/book?type=queue`}>
-              <button className="text-xs font-medium text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full mr-2">
-                Join Queue
-              </button>
-            </Link>
-            <Link href={`/salon/${slug}/book?type=appointment`}>
-              <button className="text-xs font-medium text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full">
-                Book
-              </button>
-            </Link>
+          <div className="flex items-center justify-between mt-2 text-xs">
+            <div className="flex items-center text-gray-500">
+              <Clock className="w-3 h-3 mr-1" />
+              <span>{waitTime} wait</span>
+            </div>
+            <div className="text-gray-500">{distance}</div>
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   )
 }
