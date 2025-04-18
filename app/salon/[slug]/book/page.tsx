@@ -126,6 +126,7 @@ const getTimeSlots = () => {
   return slots
 }
 
+// Update the BookingPage component to include a floating action button and improved UI
 export default function BookingPage({ params }: { params: { slug: string } }) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -208,7 +209,7 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
   const canProceedToStep4 = selectedFamilyMembers.length > 0
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 pb-6">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white shadow-sm">
         <div className="container flex items-center h-16 px-4">
@@ -269,7 +270,7 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
         </div>
       </header>
 
-      <main className="flex-1 container px-4 py-6">
+      <main className="flex-1 container px-4 py-6 pb-24">
         {/* Step 1: Select Services */}
         {step === 1 && (
           <div className="space-y-6">
@@ -281,17 +282,17 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                 selectedServices={selectedServices}
                 onToggle={handleServiceToggle}
               />
-
-              {/* In-frame continue button */}
-              <Button
-                className="w-full bg-rose-600 hover:bg-rose-700 mt-6"
-                disabled={!canProceedToStep2}
-                onClick={() => setStep(step + 1)}
-              >
-                Continue to {bookingType === "queue" ? "Queue Information" : "Select Date & Time"}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
             </div>
+
+            {/* In-section continue button */}
+            <Button
+              className="w-full bg-rose-600 hover:bg-rose-700 mt-4"
+              disabled={!canProceedToStep2}
+              onClick={() => setStep(step + 1)}
+            >
+              Continue to {bookingType === "queue" ? "Queue Information" : "Select Date & Time"}
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
           </div>
         )}
 
@@ -344,17 +345,17 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                   </div>
                 </div>
               )}
-
-              {/* In-frame continue button */}
-              <Button
-                className="w-full bg-rose-600 hover:bg-rose-700 mt-6"
-                disabled={!canProceedToStep3}
-                onClick={() => setStep(step + 1)}
-              >
-                Continue to Select People
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
             </div>
+
+            {/* In-section continue button */}
+            <Button
+              className="w-full bg-rose-600 hover:bg-rose-700 mt-4"
+              disabled={!canProceedToStep3}
+              onClick={() => setStep(step + 1)}
+            >
+              Continue to Select People
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
           </div>
         )}
 
@@ -369,17 +370,17 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                 selectedMembers={selectedFamilyMembers}
                 onToggle={handleFamilyMemberToggle}
               />
-
-              {/* In-frame continue button */}
-              <Button
-                className="w-full bg-rose-600 hover:bg-rose-700 mt-6"
-                disabled={!canProceedToStep4}
-                onClick={() => setStep(step + 1)}
-              >
-                Continue to Review & Confirm
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
             </div>
+
+            {/* In-section continue button */}
+            <Button
+              className="w-full bg-rose-600 hover:bg-rose-700 mt-4"
+              disabled={!canProceedToStep4}
+              onClick={() => setStep(step + 1)}
+            >
+              Continue to Review & Confirm
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
           </div>
         )}
 
@@ -410,17 +411,47 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
               <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
                 <h3 className="font-medium mb-3">Add a Tip</h3>
                 <TipSelector baseAmount={finalAmount} selectedAmount={tipAmount} onChange={handleTipChange} />
-
-                {/* In-frame confirm button */}
-                <Button className="w-full bg-rose-600 hover:bg-rose-700 mt-6" onClick={handleBookingSubmit}>
-                  Confirm Booking
-                  <Check className="ml-2 h-4 w-4" />
-                </Button>
               </div>
             </div>
+
+            {/* In-section confirm button */}
+            <Button className="w-full bg-rose-600 hover:bg-rose-700 mt-4" onClick={handleBookingSubmit}>
+              Confirm Booking
+              <Check className="ml-2 h-4 w-4" />
+            </Button>
           </div>
         )}
       </main>
+
+      {/* Bottom CTA - Keep this for accessibility but make it less obtrusive */}
+      <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 shadow-lg">
+        <div className="container">
+          {step < 4 ? (
+            <Button
+              className="w-full bg-rose-600 hover:bg-rose-700"
+              disabled={
+                (step === 1 && !canProceedToStep2) ||
+                (step === 2 && !canProceedToStep3) ||
+                (step === 3 && !canProceedToStep4)
+              }
+              onClick={() => setStep(step + 1)}
+            >
+              Continue to{" "}
+              {step === 1
+                ? bookingType === "queue"
+                  ? "Queue Information"
+                  : "Select Date & Time"
+                : step === 2
+                  ? "Select People"
+                  : "Review & Confirm"}
+            </Button>
+          ) : (
+            <Button className="w-full bg-rose-600 hover:bg-rose-700" onClick={handleBookingSubmit}>
+              Confirm Booking
+            </Button>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

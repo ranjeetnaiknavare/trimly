@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect } from "react"
-import { trackInteraction } from "@/lib/track-interaction"
 
 interface InteractionTrackerProps {
   salonId: string
@@ -9,69 +8,60 @@ interface InteractionTrackerProps {
   onInteraction?: (type: string, data: any) => void
 }
 
-export function InteractionTracker({ salonId, salonName }: InteractionTrackerProps) {
+export function InteractionTracker({ salonId, salonName }: { salonId: string; salonName: string }) {
   useEffect(() => {
     // Set up event listeners for tracking
-    const trackPhoneLinks = () => {
+    const trackCall = () => {
       const phoneLinks = document.querySelectorAll("[data-phone-link]")
 
-      const handlePhoneClick = (e: Event) => {
-        // Log the call interaction
-        trackInteraction("call", {
-          salonId,
-          salonName,
-          timestamp: new Date().toISOString(),
-        })
-      }
-
       phoneLinks.forEach((link) => {
-        link.addEventListener("click", handlePhoneClick)
-      })
-
-      // Cleanup function
-      return () => {
-        phoneLinks.forEach((link) => {
-          link.removeEventListener("click", handlePhoneClick)
+        link.addEventListener("click", (e) => {
+          // Log the call interaction
+          fetch("/api/analytics/track-call", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              salonId,
+              salonName,
+              timestamp: new Date().toISOString(),
+              // In a real app, we might include user info if available
+            }),
+          }).catch((err) => console.error("Failed to track call:", err))
         })
-      }
+      })
     }
 
-    const trackShareButtons = () => {
+    const trackShare = () => {
       const shareButtons = document.querySelectorAll("[data-share-button]")
 
-      const handleShareClick = (e: Event) => {
-        const target = e.currentTarget as HTMLElement
-        const platform = target.dataset.sharePlatform || "unknown"
-
-        // Log the share interaction
-        trackInteraction("share", {
-          salonId,
-          salonName,
-          platform,
-          timestamp: new Date().toISOString(),
-        })
-      }
-
       shareButtons.forEach((button) => {
-        button.addEventListener("click", handleShareClick)
-      })
+        button.addEventListener("click", (e) => {
+          // Get the platform from the data attribute
+          const platform = (e.currentTarget as HTMLElement).dataset.sharePlatform || "unknown"
 
-      // Cleanup function
-      return () => {
-        shareButtons.forEach((button) => {
-          button.removeEventListener("click", handleShareClick)
+          // Log the share interaction
+          fetch("/api/analytics/track-share", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              salonId,
+              salonName,
+              platform,
+              timestamp: new Date().toISOString(),
+              // In a real app, we might include user info if available
+            }),
+          }).catch((err) => console.error("Failed to track share:", err))
         })
-      }
+      })
     }
 
     // Initialize tracking
-    const cleanupPhone = trackPhoneLinks()
-    const cleanupShare = trackShareButtons()
+    trackCall()
+    trackShare()
 
     // Cleanup
     return () => {
-      cleanupPhone()
-      cleanupShare()
+      // In a real implementation, we would remove event listeners
     }
   }, [salonId, salonName])
 

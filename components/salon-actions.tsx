@@ -1,10 +1,11 @@
 "use client"
 
-import React, { useState } from "react"
+import React from "react"
+
+import { useState } from "react"
 import { Heart, Share2, MessageSquare, Facebook, Twitter, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { trackInteraction } from "@/lib/track-interaction"
 
 interface SalonActionsProps {
   salonId: string
@@ -27,12 +28,7 @@ export function SalonActions({ salonId, salonName, initialFavorite = false }: Sa
     const shareUrl = `https://trimly.app/salon/${salonSlug}`
 
     // Track the share interaction
-    trackInteraction("share", {
-      salonId,
-      salonName,
-      platform,
-      timestamp: new Date().toISOString(),
-    })
+    trackShareInteraction(platform, salonId, salonName)
 
     let shareLink = ""
 
@@ -62,6 +58,21 @@ export function SalonActions({ salonId, salonName, initialFavorite = false }: Sa
     setShareDialogOpen(false)
   }
 
+  // Function to track share interactions
+  const trackShareInteraction = (method: string, salonId: string, salonName: string) => {
+    // In a real implementation, this would make an API call to record the interaction
+    fetch("/api/analytics/track-share", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        salonId,
+        salonName,
+        shareMethod: method,
+        timestamp: new Date().toISOString(),
+      }),
+    }).catch((err) => console.error("Failed to track share:", err))
+  }
+
   const shareOptions = [
     { platform: "whatsapp", icon: <MessageSquare className="h-4 w-4" />, label: "WhatsApp" },
     { platform: "facebook", icon: <Facebook className="h-4 w-4" />, label: "Facebook" },
@@ -88,8 +99,6 @@ export function SalonActions({ salonId, salonName, initialFavorite = false }: Sa
           size="icon"
           className="rounded-full bg-white/80 backdrop-blur-sm"
           onClick={() => setShareDialogOpen(true)}
-          data-share-button
-          data-share-platform="dialog"
         >
           <Share2 className="w-4 h-4" />
         </Button>
@@ -112,6 +121,7 @@ export function SalonActions({ salonId, salonName, initialFavorite = false }: Sa
                 data-share-platform={option.platform}
               >
                 <div className="h-10 w-10 rounded-full bg-gray-500 flex items-center justify-center mb-2">
+                  {/* Replace the content of this div with the option icon */}
                   {React.cloneElement(option.icon, { className: "h-6 w-6 text-white" })}
                 </div>
                 <span>{option.label}</span>
@@ -122,7 +132,7 @@ export function SalonActions({ salonId, salonName, initialFavorite = false }: Sa
               className="flex flex-col items-center justify-center h-24"
               onClick={() => handleSharePlatform("copy")}
               data-share-button
-              data-share-platform="copy"
+              data-share-method="copy"
             >
               <div className="h-10 w-10 rounded-full bg-gray-500 flex items-center justify-center mb-2">
                 <svg

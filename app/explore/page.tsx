@@ -8,10 +8,9 @@ import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
+import { SalonCard } from "@/components/salon-card"
 import { CategoryPill } from "@/components/category-pill"
 import { BottomNav } from "@/components/bottom-nav"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { SalonCard } from "@/components/salon-card"
 
 // Mock data for salons
 const salons = [
@@ -102,63 +101,6 @@ export default function ExplorePage() {
 
     setFilteredSalons(filtered)
   }
-
-  // Mock data for salons
-  const nearbySalons = [
-    {
-      name: "Royal Gents Salon",
-      location: "Kothrud",
-      rating: 4.8,
-      reviews: 124,
-      distance: "1.2 km",
-      waitTime: "10 min",
-      imageUrl: "/urban-grooming-space.png",
-      category: "Men",
-    },
-    {
-      name: "Serene Beauty Space",
-      location: "Deccan",
-      rating: 4.6,
-      reviews: 98,
-      distance: "2.5 km",
-      waitTime: "25 min",
-      imageUrl: "/serene-beauty-space.png",
-      category: "Women",
-    },
-    {
-      name: "Elegant Beauty Space",
-      location: "Aundh",
-      rating: 4.7,
-      reviews: 112,
-      distance: "3.8 km",
-      waitTime: "15 min",
-      imageUrl: "/elegant-beauty-space.png",
-      category: "Unisex",
-    },
-  ]
-
-  const trendingSalons = [
-    {
-      name: "Urban Chic Salon",
-      location: "Shivaji Nagar",
-      rating: 4.9,
-      reviews: 156,
-      distance: "4.2 km",
-      waitTime: "30 min",
-      imageUrl: "/urban-chic-salon.png",
-      category: "Unisex",
-    },
-    {
-      name: "Serene Spa Retreat",
-      location: "Viman Nagar",
-      rating: 4.8,
-      reviews: 132,
-      distance: "5.7 km",
-      waitTime: "45 min",
-      imageUrl: "/serene-spa-retreat.png",
-      category: "Spa",
-    },
-  ]
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -342,30 +284,6 @@ export default function ExplorePage() {
               </Button>
             </div>
           )}
-        </div>
-        <div className="container px-4 py-6">
-          <h1 className="text-2xl font-bold mb-6">Explore Salons</h1>
-
-          <Tabs defaultValue="nearby" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="nearby">Nearby</TabsTrigger>
-              <TabsTrigger value="trending">Trending</TabsTrigger>
-            </TabsList>
-            <TabsContent value="nearby" className="space-y-4">
-              {nearbySalons.map((salon, index) => (
-                <div key={index}>
-                  <SalonCard {...salon} />
-                </div>
-              ))}
-            </TabsContent>
-            <TabsContent value="trending" className="space-y-4">
-              {trendingSalons.map((salon, index) => (
-                <div key={index}>
-                  <SalonCard {...salon} />
-                </div>
-              ))}
-            </TabsContent>
-          </Tabs>
         </div>
       </main>
 

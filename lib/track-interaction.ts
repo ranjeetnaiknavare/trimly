@@ -1,9 +1,4 @@
-/**
- * Tracks a user interaction
- * @param type The type of interaction (e.g., 'call', 'share')
- * @param data Additional data about the interaction
- */
-export async function trackInteraction(type: string, data: Record<string, any>) {
+export async function trackInteraction(type: "call" | "share", data: any) {
   try {
     const response = await fetch("/api/analytics/track-interaction", {
       method: "POST",
@@ -16,11 +11,6 @@ export async function trackInteraction(type: string, data: Record<string, any>) 
         timestamp: new Date().toISOString(),
       }),
     })
-
-    if (!response.ok) {
-      console.error(`Error tracking ${type}:`, await response.text())
-      return { success: false }
-    }
 
     return await response.json()
   } catch (error) {

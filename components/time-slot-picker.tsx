@@ -109,7 +109,7 @@ export function TimeSlotPicker({ days = [], selectedDate, selectedTime, onSelect
               <button
                 key={index}
                 className={`px-3 py-2 rounded-full text-sm whitespace-nowrap transition-all ${
-                  selectedDate === day.date
+                  index === currentDayIndex
                     ? "bg-rose-100 text-rose-600 font-medium"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
