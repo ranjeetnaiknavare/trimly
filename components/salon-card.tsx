@@ -1,7 +1,10 @@
+"use client"
+
 import { Star, Clock, MapPin } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Image } from "@/components/ui/image"
 import Link from "next/link"
+import type { MouseEvent } from "react"
 
 interface SalonCardProps {
   name: string
@@ -16,6 +19,12 @@ interface SalonCardProps {
 
 export function SalonCard({ name, location, rating, reviews, distance, waitTime, imageUrl, category }: SalonCardProps) {
   const slug = name.toLowerCase().replace(/\s+/g, "-")
+
+  // Handle button clicks to prevent event propagation
+  const handleButtonClick = (e: MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation()
+    e.preventDefault()
+  }
 
   return (
     <Link href={`/salon/${slug}`}>
@@ -57,16 +66,24 @@ export function SalonCard({ name, location, rating, reviews, distance, waitTime,
           </div>
 
           <div className="flex mt-2">
-            <Link href={`/salon/${slug}/book?type=queue`}>
-              <button className="text-xs font-medium text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full mr-2">
-                Join Queue
-              </button>
-            </Link>
-            <Link href={`/salon/${slug}/book?type=appointment`}>
-              <button className="text-xs font-medium text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full">
-                Book
-              </button>
-            </Link>
+            <button
+              onClick={(e) => {
+                handleButtonClick(e)
+                window.location.href = `/salon/${slug}/book?type=queue`
+              }}
+              className="text-xs font-medium text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full mr-2"
+            >
+              Join Queue
+            </button>
+            <button
+              onClick={(e) => {
+                handleButtonClick(e)
+                window.location.href = `/salon/${slug}/book?type=appointment`
+              }}
+              className="text-xs font-medium text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full"
+            >
+              Book
+            </button>
           </div>
         </div>
       </div>
