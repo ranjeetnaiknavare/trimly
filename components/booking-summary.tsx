@@ -1,7 +1,13 @@
-import { Clock, Calendar, Users, MapPin, Tag, Heart } from "lucide-react"
+"use client"
+
+import { Card, CardContent } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { Calendar, Clock, User, Scissors } from "lucide-react"
+import { useEffect } from "react"
 
 interface BookingSummaryProps {
   salon: {
+    id: string
     name: string
     location: string
     services: Array<{
@@ -10,13 +16,13 @@ interface BookingSummaryProps {
       description: string
       price: number
       duration: number
-      popular?: boolean
+      popular: boolean
     }>
-    familyMembers: Array<{
+    familyMembers?: Array<{
       id: string
       name: string
       relation: string
-      selected?: boolean
+      selected: boolean
     }>
   }
   selectedServices: string[]
@@ -26,12 +32,12 @@ interface BookingSummaryProps {
   familyMembers: string[]
   totalAmount: number
   totalDuration: number
-  appliedCoupon?: {
+  appliedCoupon: {
     code: string
     discount: number
     type: "percentage" | "fixed"
   } | null
-  tipAmount?: number
+  tipAmount: number
 }
 
 export function BookingSummary({
@@ -43,138 +49,141 @@ export function BookingSummary({
   familyMembers,
   totalAmount,
   totalDuration,
-  appliedCoupon = null,
-  tipAmount = 0,
+  appliedCoupon,
+  tipAmount,
 }: BookingSummaryProps) {
-  // Get service names and details
-  const serviceDetails = selectedServices
-    .map((id) => {
-      const service = salon.services.find((s) => s.id === id)
-      return service
-        ? {
-            name: service.name,
-            duration: service.duration,
-            price: service.price,
-          }
-        : null
-    })
-    .filter(Boolean)
+  const selectedServiceDetails = salon.services.filter((service) => selectedServices.includes(service.id))
+  const selectedFamilyMemberDetails = salon.familyMembers?.filter((member) => familyMembers.includes(member.id)) || []
 
-  // Get family member names
-  const memberNames = familyMembers
-    .map((id) => {
-      const member = salon.familyMembers.find((m) => m.id === id)
-      return member?.name || ""
-    })
-    .filter(Boolean)
+  const finalAmount = totalAmount + tipAmount
 
-  // Calculate subtotal
-  const subtotal = serviceDetails.reduce((total, service) => total + (service?.price || 0), 0)
+  // Store booking details in session storage for use in confirmation page
+  useEffect(() => {
+    const bookingDetails = {
+      id: "BK" + Math.floor(Math.random() * 10000),
+      salonName: salon.name,
+      salonAddress: salon.location,
+      services: selectedServiceDetails.map((service) => service.name),
+      date: date || new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }),
+      time: time || "As soon as possible",
+      bookingType,
+      queueNumber: Math.floor(Math.random() * 10) + 1,
+      estimatedWaitTime: Math.ceil(totalDuration / 15) * 15,
+      totalAmount: finalAmount,
+      customerName: selectedFamilyMemberDetails.map((member) => member.name).join(", "),
+    }
 
-  // Calculate discount
-  const discount = appliedCoupon
-    ? appliedCoupon.type === "percentage"
-      ? Math.round((subtotal * appliedCoupon.discount) / 100)
-      : appliedCoupon.discount
-    : 0
+    sessionStorage.setItem("trimly_last_booking", JSON.stringify(bookingDetails))
+  }, [salon, selectedServiceDetails, date, time, bookingType, totalDuration, finalAmount, selectedFamilyMemberDetails])
 
   return (
-    <div className="space-y-4">
-      <div className="bg-white rounded-lg border border-gray-100 p-4">
-        <h3 className="font-medium text-lg">{salon.name}</h3>
-        <div className="flex items-center text-sm text-gray-500 mt-1">
-          <MapPin className="w-3 h-3 mr-1" />
-          <span>{salon.location}</span>
+    <Card>
+      <CardContent className="p-4 space-y-4">
+        {/* Salon Info */}
+        <div>
+          <h3 className="font-semibold">{salon.name}</h3>
+          <p className="text-sm text-gray-500">{salon.location}</p>
         </div>
 
-        <div className="mt-4 space-y-3">
-          <div className="flex justify-between">
-            <div className="flex items-start">
-              <Clock className="w-4 h-4 text-gray-400 mt-0.5 mr-2" />
-              <div>
-                <p className="text-sm font-medium">Booking Type</p>
-                <p className="text-sm text-gray-600">{bookingType === "queue" ? "Join Queue" : "Appointment"}</p>
-              </div>
-            </div>
-            {bookingType === "appointment" && date && time && (
-              <div className="flex items-start">
-                <Calendar className="w-4 h-4 text-gray-400 mt-0.5 mr-2" />
-                <div>
-                  <p className="text-sm font-medium">Date & Time</p>
-                  <p className="text-sm text-gray-600">
-                    {date}, {time}
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
+        <Separator />
 
-          <div className="flex justify-between">
-            <div className="flex items-start">
-              <Users className="w-4 h-4 text-gray-400 mt-0.5 mr-2" />
-              <div>
-                <p className="text-sm font-medium">For</p>
-                <p className="text-sm text-gray-600">{memberNames.join(", ")}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-lg border border-gray-100 p-4">
-        <h3 className="font-medium mb-2">Services</h3>
+        {/* Booking Type & Time */}
         <div className="space-y-2">
-          {serviceDetails.map((service, index) => (
-            <div key={index} className="flex justify-between text-sm">
-              <div>
-                <p>{service?.name}</p>
-                <p className="text-xs text-gray-500">{service?.duration} min</p>
-              </div>
-              <p>₹{service?.price}</p>
+          <div className="flex items-center">
+            <Calendar className="h-4 w-4 mr-2 text-gray-500" />
+            <span className="text-sm">
+              {bookingType === "appointment" ? (
+                <>
+                  {date} • {time}
+                </>
+              ) : (
+                "Join Virtual Queue Today"
+              )}
+            </span>
+          </div>
+          {bookingType === "queue" && (
+            <div className="flex items-center">
+              <Clock className="h-4 w-4 mr-2 text-gray-500" />
+              <span className="text-sm">Estimated wait: ~{Math.ceil(totalDuration / 15) * 15} min</span>
             </div>
-          ))}
+          )}
+        </div>
 
-          <div className="border-t border-gray-100 pt-2 mt-2">
-            <div className="flex justify-between text-sm">
-              <p>Subtotal</p>
-              <p>₹{subtotal}</p>
-            </div>
+        <Separator />
 
-            {appliedCoupon && (
-              <div className="flex justify-between text-sm text-green-600 items-center">
-                <div className="flex items-center">
-                  <Tag className="h-3 w-3 mr-1" />
-                  <p>Coupon: {appliedCoupon.code}</p>
-                </div>
-                <p>-₹{discount}</p>
+        {/* Services */}
+        <div>
+          <h4 className="text-sm font-medium mb-2 flex items-center">
+            <Scissors className="h-4 w-4 mr-2 text-gray-500" />
+            Selected Services
+          </h4>
+          <div className="space-y-2">
+            {selectedServiceDetails.map((service) => (
+              <div key={service.id} className="flex justify-between text-sm">
+                <span>{service.name}</span>
+                <span>₹{service.price}</span>
               </div>
-            )}
-
-            {tipAmount > 0 && (
-              <div className="flex justify-between text-sm text-rose-600 items-center">
-                <div className="flex items-center">
-                  <Heart className="h-3 w-3 mr-1" />
-                  <p>Tip</p>
-                </div>
-                <p>₹{tipAmount}</p>
-              </div>
-            )}
-
-            <div className="flex justify-between font-medium mt-2">
-              <p>Total</p>
-              <p>₹{totalAmount + (tipAmount || 0)}</p>
-            </div>
-            <p className="text-xs text-gray-500 mt-1">Total duration: {totalDuration} min</p>
+            ))}
           </div>
         </div>
-      </div>
 
-      <div className="bg-white rounded-lg border border-gray-100 p-4">
-        <h3 className="font-medium mb-2">Payment</h3>
-        <p className="text-sm text-gray-600">
-          Payment will be made directly at the salon after your service is complete.
-        </p>
-      </div>
-    </div>
+        <Separator />
+
+        {/* Family Members */}
+        <div>
+          <h4 className="text-sm font-medium mb-2 flex items-center">
+            <User className="h-4 w-4 mr-2 text-gray-500" />
+            For
+          </h4>
+          <div className="text-sm">
+            {selectedFamilyMemberDetails.map((member) => (
+              <span key={member.id} className="mr-2">
+                {member.name}
+                {member.relation !== "self" && ` (${member.relation})`}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Price Summary */}
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span>Subtotal</span>
+            <span>₹{totalAmount}</span>
+          </div>
+
+          {appliedCoupon && (
+            <div className="flex justify-between text-sm text-green-600">
+              <span>
+                Coupon: {appliedCoupon.code}{" "}
+                {appliedCoupon.type === "percentage"
+                  ? `(${appliedCoupon.discount}% off)`
+                  : `(₹${appliedCoupon.discount} off)`}
+              </span>
+              <span>
+                -₹
+                {appliedCoupon.type === "percentage"
+                  ? ((totalAmount * appliedCoupon.discount) / 100).toFixed(0)
+                  : appliedCoupon.discount}
+              </span>
+            </div>
+          )}
+
+          {tipAmount > 0 && (
+            <div className="flex justify-between text-sm">
+              <span>Tip</span>
+              <span>₹{tipAmount}</span>
+            </div>
+          )}
+
+          <div className="flex justify-between font-semibold pt-2">
+            <span>Total</span>
+            <span>₹{finalAmount}</span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }

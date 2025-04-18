@@ -69,14 +69,67 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
 
+  // Fix: Use sessionStorage instead of localStorage for better persistence across tabs
+  // and implement proper session handling
   useEffect(() => {
     // Check for stored user on mount
-    const storedUser = localStorage.getItem("trimly_user")
+    const storedUser = sessionStorage.getItem("trimly_user")
     if (storedUser) {
-      setUser(JSON.parse(storedUser))
+      try {
+        const parsedUser = JSON.parse(storedUser)
+        setUser(parsedUser)
+
+        // Refresh the session timer
+        sessionStorage.setItem("trimly_last_active", Date.now().toString())
+      } catch (error) {
+        console.error("Failed to parse stored user:", error)
+        sessionStorage.removeItem("trimly_user")
+      }
     }
     setIsLoading(false)
   }, [])
+
+  // Add session timeout handling (30 minutes of inactivity)
+  useEffect(() => {
+    if (!user) return
+
+    const checkSession = () => {
+      const lastActive = sessionStorage.getItem("trimly_last_active")
+      if (lastActive) {
+        const inactiveTime = Date.now() - Number.parseInt(lastActive)
+        // If inactive for more than 30 minutes, log out
+        if (inactiveTime > 30 * 60 * 1000) {
+          logout()
+        } else {
+          // Update last active time
+          sessionStorage.setItem("trimly_last_active", Date.now().toString())
+        }
+      }
+    }
+
+    // Check session every minute
+    const interval = setInterval(checkSession, 60 * 1000)
+
+    // Update last active time on user interaction
+    const updateLastActive = () => {
+      if (user) {
+        sessionStorage.setItem("trimly_last_active", Date.now().toString())
+      }
+    }
+
+    window.addEventListener("click", updateLastActive)
+    window.addEventListener("keypress", updateLastActive)
+    window.addEventListener("scroll", updateLastActive)
+    window.addEventListener("mousemove", updateLastActive)
+
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener("click", updateLastActive)
+      window.removeEventListener("keypress", updateLastActive)
+      window.removeEventListener("scroll", updateLastActive)
+      window.removeEventListener("mousemove", updateLastActive)
+    }
+  }, [user])
 
   // Update the useEffect for redirects to handle advertiser role
   useEffect(() => {
@@ -109,12 +162,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (foundUser) {
       setUser(foundUser)
-      localStorage.setItem("trimly_user", JSON.stringify(foundUser))
+      // Store in sessionStorage for better persistence
+      sessionStorage.setItem("trimly_user", JSON.stringify(foundUser))
+      sessionStorage.setItem("trimly_last_active", Date.now().toString())
       setIsLoading(false)
 
       // Redirect based on role
       if (role === "business") {
         router.push("/business/dashboard")
+      } else if (role === "advertiser") {
+        router.push("/advertiser/dashboard")
       } else {
         router.push("/")
       }
@@ -140,12 +197,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (foundUser) {
       setUser(foundUser)
-      localStorage.setItem("trimly_user", JSON.stringify(foundUser))
+      // Store in sessionStorage for better persistence
+      sessionStorage.setItem("trimly_user", JSON.stringify(foundUser))
+      sessionStorage.setItem("trimly_last_active", Date.now().toString())
       setIsLoading(false)
 
       // Redirect based on role
       if (role === "business") {
         router.push("/business/dashboard")
+      } else if (role === "advertiser") {
+        router.push("/advertiser/dashboard")
       } else {
         router.push("/")
       }
@@ -159,7 +220,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null)
-    localStorage.removeItem("trimly_user")
+    sessionStorage.removeItem("trimly_user")
+    sessionStorage.removeItem("trimly_last_active")
     router.push("/")
   }
 
@@ -195,13 +257,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // In a real app, you would save this to your database
     // For demo, we'll just set the current user
     setUser(newUser)
-    localStorage.setItem("trimly_user", JSON.stringify(newUser))
+    // Store in sessionStorage for better persistence
+    sessionStorage.setItem("trimly_user", JSON.stringify(newUser))
+    sessionStorage.setItem("trimly_last_active", Date.now().toString())
 
     setIsLoading(false)
 
     // Redirect based on role
     if (role === "business") {
       router.push("/business/dashboard")
+    } else if (role === "advertiser") {
+      router.push("/advertiser/dashboard")
     } else {
       router.push("/")
     }

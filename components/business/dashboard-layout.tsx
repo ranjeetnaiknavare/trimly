@@ -21,6 +21,7 @@ import {
   Bell,
   Tag,
   UserCog,
+  Link2,
 } from "lucide-react"
 import { TrimlyLogo } from "@/components/trimly-logo"
 import { Button } from "@/components/ui/button"
@@ -39,6 +40,7 @@ interface NavItem {
   title: string
   href: string
   icon: React.ReactNode
+  children?: { title: string; href: string }[]
 }
 
 const navItems: NavItem[] = [
@@ -88,6 +90,16 @@ const navItems: NavItem[] = [
     icon: <BarChart className="h-5 w-5" />,
   },
   {
+    title: "Integrations",
+    href: "/business/integrations",
+    icon: <Link2 className="h-5 w-5" />,
+    children: [
+      { title: "Widget", href: "/business/integrations/widget" },
+      { title: "Social Media", href: "/business/integrations/social-media" },
+      { title: "Calendar", href: "/business/integrations/calendar" },
+    ],
+  },
+  {
     title: "Billing",
     href: "/business/billing",
     icon: <CreditCard className="h-5 w-5" />,
@@ -115,6 +127,7 @@ interface BusinessDashboardLayoutProps {
 
 export function BusinessDashboardLayout({ children }: BusinessDashboardLayoutProps) {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const pathname = usePathname()
   const { user, logout } = useAuth()
   const router = useRouter()
@@ -122,6 +135,14 @@ export function BusinessDashboardLayout({ children }: BusinessDashboardLayoutPro
   const handleSignOut = () => {
     logout()
     router.push("/business/login")
+  }
+
+  const isActive = (href: string) => {
+    return pathname === href || pathname?.startsWith(href + "/")
+  }
+
+  const toggleDropdown = (title: string) => {
+    setOpenDropdown(openDropdown === title ? null : title)
   }
 
   return (
@@ -137,17 +158,64 @@ export function BusinessDashboardLayout({ children }: BusinessDashboardLayoutPro
           <ul className="space-y-1">
             {navItems.map((item) => (
               <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
-                    pathname === item.href
-                      ? "bg-rose-50 text-rose-600"
-                      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                  }`}
-                >
-                  <span className="mr-3">{item.icon}</span>
-                  {item.title}
-                </Link>
+                {item.children ? (
+                  <div>
+                    <button
+                      onClick={() => toggleDropdown(item.title)}
+                      className={`flex items-center justify-between w-full px-3 py-2 rounded-md text-sm font-medium ${
+                        isActive(item.href)
+                          ? "bg-rose-50 text-rose-600"
+                          : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                      }`}
+                    >
+                      <div className="flex items-center">
+                        <span className="mr-3">{item.icon}</span>
+                        {item.title}
+                      </div>
+                      <svg
+                        className={`w-4 h-4 transition-transform ${
+                          openDropdown === item.title ? "transform rotate-180" : ""
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    {openDropdown === item.title && (
+                      <ul className="pl-10 mt-1 space-y-1">
+                        {item.children.map((child) => (
+                          <li key={child.href}>
+                            <Link
+                              href={child.href}
+                              className={`block px-3 py-2 rounded-md text-sm ${
+                                pathname === child.href
+                                  ? "bg-rose-50 text-rose-600"
+                                  : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                              }`}
+                            >
+                              {child.title}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ) : (
+                  <Link
+                    href={item.href}
+                    className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
+                      isActive(item.href)
+                        ? "bg-rose-50 text-rose-600"
+                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                    }`}
+                  >
+                    <span className="mr-3">{item.icon}</span>
+                    {item.title}
+                  </Link>
+                )}
               </li>
             ))}
           </ul>
@@ -210,18 +278,66 @@ export function BusinessDashboardLayout({ children }: BusinessDashboardLayoutPro
                   <ul className="space-y-1">
                     {navItems.map((item) => (
                       <li key={item.href}>
-                        <Link
-                          href={item.href}
-                          className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
-                            pathname === item.href
-                              ? "bg-rose-50 text-rose-600"
-                              : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                          }`}
-                          onClick={() => setIsMobileNavOpen(false)}
-                        >
-                          <span className="mr-3">{item.icon}</span>
-                          {item.title}
-                        </Link>
+                        {item.children ? (
+                          <div>
+                            <button
+                              onClick={() => toggleDropdown(item.title)}
+                              className={`flex items-center justify-between w-full px-3 py-2 rounded-md text-sm font-medium ${
+                                isActive(item.href)
+                                  ? "bg-rose-50 text-rose-600"
+                                  : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                              }`}
+                            >
+                              <div className="flex items-center">
+                                <span className="mr-3">{item.icon}</span>
+                                {item.title}
+                              </div>
+                              <svg
+                                className={`w-4 h-4 transition-transform ${
+                                  openDropdown === item.title ? "transform rotate-180" : ""
+                                }`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </button>
+                            {openDropdown === item.title && (
+                              <ul className="pl-10 mt-1 space-y-1">
+                                {item.children.map((child) => (
+                                  <li key={child.href}>
+                                    <Link
+                                      href={child.href}
+                                      className={`block px-3 py-2 rounded-md text-sm ${
+                                        pathname === child.href
+                                          ? "bg-rose-50 text-rose-600"
+                                          : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                                      }`}
+                                      onClick={() => setIsMobileNavOpen(false)}
+                                    >
+                                      {child.title}
+                                    </Link>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        ) : (
+                          <Link
+                            href={item.href}
+                            className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
+                              isActive(item.href)
+                                ? "bg-rose-50 text-rose-600"
+                                : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                            }`}
+                            onClick={() => setIsMobileNavOpen(false)}
+                          >
+                            <span className="mr-3">{item.icon}</span>
+                            {item.title}
+                          </Link>
+                        )}
                       </li>
                     ))}
                   </ul>

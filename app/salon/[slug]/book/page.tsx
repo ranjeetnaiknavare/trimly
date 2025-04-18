@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { ArrowLeft, Clock, Check } from "lucide-react"
+import { ArrowLeft, Clock, Check, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ServiceSelectionList } from "@/components/service-selection-list"
 import { TimeSlotPicker } from "@/components/time-slot-picker"
@@ -16,32 +16,35 @@ import { QueueInfoTooltip } from "@/components/queue-info-tooltip"
 const getSalonData = (slug: string) => {
   return {
     id: "1",
-    name: "Royal Gents Salon",
-    slug: "royal-gents-salon",
-    location: "Shop 7, Mayur Complex, Kothrud, Pune",
+    name: slug === "royal-gents-salon" ? "Royal Gents Salon" : "Blush Ladies Parlour",
+    slug: slug,
+    location:
+      slug === "royal-gents-salon" ? "Shop 7, Mayur Complex, Kothrud, Pune" : "Shop 12, Westend Mall, Aundh, Pune",
     services: [
       {
         id: "s1",
-        name: "Haircut",
-        description: "Includes wash, cut, and styling",
-        price: 250,
-        duration: 30,
+        name: slug === "royal-gents-salon" ? "Haircut" : "Hair Styling",
+        description:
+          slug === "royal-gents-salon" ? "Includes wash, cut, and styling" : "Professional styling for any occasion",
+        price: slug === "royal-gents-salon" ? 250 : 500,
+        duration: slug === "royal-gents-salon" ? 30 : 45,
         popular: true,
       },
       {
         id: "s2",
-        name: "Beard Trim",
-        description: "Shape and style your beard",
-        price: 150,
-        duration: 15,
+        name: slug === "royal-gents-salon" ? "Beard Trim" : "Manicure",
+        description: slug === "royal-gents-salon" ? "Shape and style your beard" : "Nail care and polish application",
+        price: slug === "royal-gents-salon" ? 150 : 350,
+        duration: slug === "royal-gents-salon" ? 15 : 30,
         popular: false,
       },
       {
         id: "s3",
-        name: "Hair Color",
-        description: "Professional coloring service",
-        price: 800,
-        duration: 60,
+        name: slug === "royal-gents-salon" ? "Hair Color" : "Pedicure",
+        description:
+          slug === "royal-gents-salon" ? "Professional coloring service" : "Foot care and polish application",
+        price: slug === "royal-gents-salon" ? 800 : 450,
+        duration: slug === "royal-gents-salon" ? 60 : 45,
         popular: false,
       },
       {
@@ -54,17 +57,28 @@ const getSalonData = (slug: string) => {
       },
       {
         id: "s5",
-        name: "Head Massage",
-        description: "Relaxing scalp massage with oil",
-        price: 300,
-        duration: 20,
+        name: slug === "royal-gents-salon" ? "Head Massage" : "Makeup",
+        description:
+          slug === "royal-gents-salon" ? "Relaxing scalp massage with oil" : "Professional makeup application",
+        price: slug === "royal-gents-salon" ? 300 : 800,
+        duration: slug === "royal-gents-salon" ? 20 : 60,
         popular: false,
       },
     ],
     familyMembers: [
       { id: "m1", name: "Me", relation: "self", selected: true },
-      { id: "m2", name: "Raj (Son)", relation: "son", selected: false },
-      { id: "m3", name: "Priya (Daughter)", relation: "daughter", selected: false },
+      {
+        id: "m2",
+        name: slug === "royal-gents-salon" ? "Raj (Son)" : "Meera (Daughter)",
+        relation: slug === "royal-gents-salon" ? "son" : "daughter",
+        selected: false,
+      },
+      {
+        id: "m3",
+        name: slug === "royal-gents-salon" ? "Priya (Daughter)" : "Anita (Mother)",
+        relation: slug === "royal-gents-salon" ? "daughter" : "mother",
+        selected: false,
+      },
     ],
   }
 }
@@ -105,6 +119,7 @@ const getTimeSlots = () => {
     slots.push({
       date: date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }),
       slots: daySlots,
+      isToday: i === 0,
     })
   }
 
@@ -157,13 +172,11 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
   }
 
   // Handle date and time selection
-  const handleDateSelect = (date: string) => {
+  const handleDateTimeSelect = (date: string, time: string) => {
     setSelectedDate(date)
-    setSelectedTime(null) // Reset time when date changes
-  }
-
-  const handleTimeSelect = (time: string) => {
-    setSelectedTime(time)
+    if (time) {
+      setSelectedTime(time)
+    }
   }
 
   // Handle family member selection
@@ -195,7 +208,7 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
   const canProceedToStep4 = selectedFamilyMembers.length > 0
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-gray-50 pb-6">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white shadow-sm">
         <div className="container flex items-center h-16 px-4">
@@ -215,36 +228,36 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
           <h1 className="ml-4 text-lg font-semibold">{bookingType === "queue" ? "Join Queue" : "Book Appointment"}</h1>
         </div>
 
-        {/* Progress Steps */}
+        {/* Progress Steps - Enhanced with better visual feedback */}
         <div className="container px-4 pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <div
-                className={`flex items-center justify-center w-6 h-6 rounded-full ${
+                className={`flex items-center justify-center w-6 h-6 rounded-full transition-all duration-300 ${
                   step >= 1 ? "bg-rose-600 text-white" : "bg-gray-200 text-gray-500"
                 }`}
               >
                 {step > 1 ? <Check className="w-4 h-4" /> : "1"}
               </div>
-              <div className={`h-1 w-6 ${step > 1 ? "bg-rose-600" : "bg-gray-200"}`}></div>
+              <div className={`h-1 w-6 transition-all duration-300 ${step > 1 ? "bg-rose-600" : "bg-gray-200"}`}></div>
               <div
-                className={`flex items-center justify-center w-6 h-6 rounded-full ${
+                className={`flex items-center justify-center w-6 h-6 rounded-full transition-all duration-300 ${
                   step >= 2 ? "bg-rose-600 text-white" : "bg-gray-200 text-gray-500"
                 }`}
               >
                 {step > 2 ? <Check className="w-4 h-4" /> : "2"}
               </div>
-              <div className={`h-1 w-6 ${step > 2 ? "bg-rose-600" : "bg-gray-200"}`}></div>
+              <div className={`h-1 w-6 transition-all duration-300 ${step > 2 ? "bg-rose-600" : "bg-gray-200"}`}></div>
               <div
-                className={`flex items-center justify-center w-6 h-6 rounded-full ${
+                className={`flex items-center justify-center w-6 h-6 rounded-full transition-all duration-300 ${
                   step >= 3 ? "bg-rose-600 text-white" : "bg-gray-200 text-gray-500"
                 }`}
               >
                 {step > 3 ? <Check className="w-4 h-4" /> : "3"}
               </div>
-              <div className={`h-1 w-6 ${step > 3 ? "bg-rose-600" : "bg-gray-200"}`}></div>
+              <div className={`h-1 w-6 transition-all duration-300 ${step > 3 ? "bg-rose-600" : "bg-gray-200"}`}></div>
               <div
-                className={`flex items-center justify-center w-6 h-6 rounded-full ${
+                className={`flex items-center justify-center w-6 h-6 rounded-full transition-all duration-300 ${
                   step >= 4 ? "bg-rose-600 text-white" : "bg-gray-200 text-gray-500"
                 }`}
               >
@@ -259,35 +272,50 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
       <main className="flex-1 container px-4 py-6">
         {/* Step 1: Select Services */}
         {step === 1 && (
-          <div>
-            <h2 className="text-xl font-bold mb-4">Select Services</h2>
-            <ServiceSelectionList
-              services={salon.services}
-              selectedServices={selectedServices}
-              onToggle={handleServiceToggle}
-            />
+          <div className="space-y-6">
+            <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+              <h2 className="text-xl font-bold mb-2">Select Services</h2>
+              <p className="text-sm text-gray-600 mb-4">Choose the services you'd like to book at {salon.name}</p>
+              <ServiceSelectionList
+                services={salon.services}
+                selectedServices={selectedServices}
+                onToggle={handleServiceToggle}
+              />
+
+              {/* In-frame continue button */}
+              <Button
+                className="w-full bg-rose-600 hover:bg-rose-700 mt-6"
+                disabled={!canProceedToStep2}
+                onClick={() => setStep(step + 1)}
+              >
+                Continue to {bookingType === "queue" ? "Queue Information" : "Select Date & Time"}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
           </div>
         )}
 
         {/* Step 2: Select Date & Time (for appointments) or Queue Info (for queue) */}
         {step === 2 && (
-          <div>
-            {bookingType === "appointment" ? (
-              <>
-                <h2 className="text-xl font-bold mb-4">Select Date & Time</h2>
-                <TimeSlotPicker
-                  timeSlots={timeSlots}
-                  selectedDate={selectedDate}
-                  selectedTime={selectedTime}
-                  onDateSelect={handleDateSelect}
-                  onTimeSelect={handleTimeSelect}
-                />
-              </>
-            ) : (
-              <div className="space-y-4">
-                <h2 className="text-xl font-bold">Join Virtual Queue</h2>
-                <div className="bg-white p-4 rounded-lg border border-gray-100">
-                  <div className="flex items-start">
+          <div className="space-y-6">
+            <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+              {bookingType === "appointment" ? (
+                <>
+                  <h2 className="text-xl font-bold mb-2">Select Date & Time</h2>
+                  <p className="text-sm text-gray-600 mb-4">Choose when you'd like to visit {salon.name}</p>
+                  <TimeSlotPicker
+                    days={timeSlots}
+                    selectedDate={selectedDate}
+                    selectedTime={selectedTime}
+                    onSelect={handleDateTimeSelect}
+                  />
+                </>
+              ) : (
+                <div className="space-y-4">
+                  <h2 className="text-xl font-bold">Join Virtual Queue</h2>
+                  <p className="text-sm text-gray-600">Skip the waiting room and get notified when it's your turn</p>
+
+                  <div className="flex items-start mt-4">
                     <Clock className="w-5 h-5 text-rose-600 mt-0.5 mr-3" />
                     <div>
                       <h3 className="font-medium">Estimated Wait Time</h3>
@@ -299,89 +327,100 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                         You will receive a notification when it's your turn. You can also track your position in the
                         queue.
                       </p>
-                      <div className="mt-4 p-3 bg-rose-50 rounded-md border border-rose-100">
-                        <h4 className="font-medium flex items-center">
-                          How Queue Works
-                          <QueueInfoTooltip />
-                        </h4>
-                        <ol className="mt-2 text-sm text-gray-600 space-y-2 list-decimal list-inside">
-                          <li>Join the virtual queue by selecting your services</li>
-                          <li>Receive updates about your position in the queue</li>
-                          <li>Arrive at the salon when you're notified it's almost your turn</li>
-                          <li>Skip the waiting room and get serviced right away</li>
-                        </ol>
-                      </div>
                     </div>
                   </div>
+
+                  <div className="mt-4 p-3 bg-rose-50 rounded-md border border-rose-100">
+                    <h4 className="font-medium flex items-center">
+                      How Queue Works
+                      <QueueInfoTooltip />
+                    </h4>
+                    <ol className="mt-2 text-sm text-gray-600 space-y-2 list-decimal list-inside">
+                      <li>Join the virtual queue by selecting your services</li>
+                      <li>Receive updates about your position in the queue</li>
+                      <li>Arrive at the salon when you're notified it's almost your turn</li>
+                      <li>Skip the waiting room and get serviced right away</li>
+                    </ol>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+
+              {/* In-frame continue button */}
+              <Button
+                className="w-full bg-rose-600 hover:bg-rose-700 mt-6"
+                disabled={!canProceedToStep3}
+                onClick={() => setStep(step + 1)}
+              >
+                Continue to Select People
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
           </div>
         )}
 
         {/* Step 3: Select Family Members */}
         {step === 3 && (
-          <div>
-            <h2 className="text-xl font-bold mb-4">Who is this booking for?</h2>
-            <FamilyMemberSelector
-              members={salon.familyMembers}
-              selectedMembers={selectedFamilyMembers}
-              onToggle={handleFamilyMemberToggle}
-            />
+          <div className="space-y-6">
+            <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+              <h2 className="text-xl font-bold mb-2">Who is this booking for?</h2>
+              <p className="text-sm text-gray-600 mb-4">Select the people who will be receiving services</p>
+              <FamilyMemberSelector
+                members={salon.familyMembers}
+                selectedMembers={selectedFamilyMembers}
+                onToggle={handleFamilyMemberToggle}
+              />
+
+              {/* In-frame continue button */}
+              <Button
+                className="w-full bg-rose-600 hover:bg-rose-700 mt-6"
+                disabled={!canProceedToStep4}
+                onClick={() => setStep(step + 1)}
+              >
+                Continue to Review & Confirm
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
           </div>
         )}
 
         {/* Step 4: Review & Confirm */}
         {step === 4 && (
-          <div>
-            <h2 className="text-xl font-bold mb-4">Review & Confirm</h2>
-            <BookingSummary
-              salon={salon}
-              selectedServices={selectedServices}
-              bookingType={bookingType as "queue" | "appointment"}
-              date={selectedDate}
-              time={selectedTime}
-              familyMembers={selectedFamilyMembers}
-              totalAmount={finalAmount}
-              totalDuration={totalDuration}
-              appliedCoupon={appliedCoupon}
-              tipAmount={tipAmount}
-            />
+          <div className="space-y-6">
+            <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+              <h2 className="text-xl font-bold mb-4">Review & Confirm</h2>
+              <BookingSummary
+                salon={salon}
+                selectedServices={selectedServices}
+                bookingType={bookingType as "queue" | "appointment"}
+                date={selectedDate}
+                time={selectedTime}
+                familyMembers={selectedFamilyMembers}
+                totalAmount={finalAmount}
+                totalDuration={totalDuration}
+                appliedCoupon={appliedCoupon}
+                tipAmount={tipAmount}
+              />
+            </div>
 
-            <div className="mt-6 space-y-4">
-              <CouponInput onApplyCoupon={handleApplyCoupon} />
+            <div className="space-y-4">
+              <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+                <CouponInput onApplyCoupon={handleApplyCoupon} />
+              </div>
 
-              <div className="bg-white rounded-lg border border-gray-100 p-4">
+              <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
                 <h3 className="font-medium mb-3">Add a Tip</h3>
                 <TipSelector baseAmount={finalAmount} selectedAmount={tipAmount} onChange={handleTipChange} />
+
+                {/* In-frame confirm button */}
+                <Button className="w-full bg-rose-600 hover:bg-rose-700 mt-6" onClick={handleBookingSubmit}>
+                  Confirm Booking
+                  <Check className="ml-2 h-4 w-4" />
+                </Button>
               </div>
             </div>
           </div>
         )}
       </main>
-
-      {/* Bottom CTA */}
-      <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4">
-        <div className="container">
-          {step < 4 ? (
-            <Button
-              className="w-full bg-rose-600 hover:bg-rose-700"
-              disabled={
-                (step === 1 && !canProceedToStep2) ||
-                (step === 2 && !canProceedToStep3) ||
-                (step === 3 && !canProceedToStep4)
-              }
-              onClick={() => setStep(step + 1)}
-            >
-              Continue
-            </Button>
-          ) : (
-            <Button className="w-full bg-rose-600 hover:bg-rose-700" onClick={handleBookingSubmit}>
-              Confirm Booking
-            </Button>
-          )}
-        </div>
-      </div>
     </div>
   )
 }
