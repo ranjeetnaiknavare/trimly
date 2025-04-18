@@ -1,177 +1,290 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, ArrowRight } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { ArrowLeft, MapPin, Store, CheckCircle, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { BusinessBasicInfoForm } from "@/components/business/basic-info-form"
-import { BusinessLocationForm } from "@/components/business/location-form"
-import { BusinessHoursForm } from "@/components/business/hours-form"
-import { BusinessServicesForm } from "@/components/business/services-form"
-import { BusinessPhotosForm } from "@/components/business/photos-form"
-import { BusinessOwnerForm } from "@/components/business/owner-form"
-import { BusinessReviewForm } from "@/components/business/review-form"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { TrimlyLogo } from "@/components/trimly-logo"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 export default function BusinessRegistrationPage() {
-  const [currentStep, setCurrentStep] = useState(1)
-  const [formData, setFormData] = useState({
-    // Basic Info
-    businessName: "",
-    businessType: "",
-    businessEmail: "", // Now optional
-    businessPhone: "", // Primary identifier
-    description: "",
-
-    // Location
+  const router = useRouter()
+  const [step, setStep] = useState<"phone" | "otp" | "location" | "success">("phone")
+  const [phoneNumber, setPhoneNumber] = useState("")
+  const [otp, setOtp] = useState(["", "", "", "", "", ""])
+  const [businessName, setBusinessName] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [showLocationDialog, setShowLocationDialog] = useState(false)
+  const [location, setLocation] = useState({
     address: "",
     city: "",
     state: "",
     pincode: "",
-    landmark: "",
-
-    // Hours
-    hours: {
-      monday: { open: "10:00", close: "20:00", isOpen: true },
-      tuesday: { open: "10:00", close: "20:00", isOpen: true },
-      wednesday: { open: "10:00", close: "20:00", isOpen: true },
-      thursday: { open: "10:00", close: "20:00", isOpen: true },
-      friday: { open: "10:00", close: "20:00", isOpen: true },
-      saturday: { open: "10:00", close: "20:00", isOpen: true },
-      sunday: { open: "10:00", close: "18:00", isOpen: true },
-    },
-
-    // Services
-    services: [{ id: "1", name: "Haircut", description: "Basic haircut service", price: 250, duration: 30 }],
-
-    // Photos
-    photos: [],
-
-    // Owner Info
-    ownerName: "",
-    ownerEmail: "", // Now optional
-    ownerPhone: "", // Primary identifier
-    password: "",
-    confirmPassword: "",
-    otpVerified: false, // New field to track OTP verification
   })
 
-  // Reduced from 7 to 5 steps by consolidation
-  const totalSteps = 5
+  const handlePhoneSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
 
-  const updateFormData = (stepData: Partial<typeof formData>) => {
-    setFormData((prev) => ({ ...prev, ...stepData }))
+    // Simulate API call to send OTP
+    setTimeout(() => {
+      setIsLoading(false)
+      setStep("otp")
+    }, 1000)
   }
 
-  const handleNext = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1)
-      window.scrollTo(0, 0)
+  const handleOtpChange = (index: number, value: string) => {
+    if (value.length > 1) {
+      value = value.slice(0, 1)
+    }
+
+    const newOtp = [...otp]
+    newOtp[index] = value
+    setOtp(newOtp)
+
+    // Auto-focus next input
+    if (value && index < 5) {
+      const nextInput = document.getElementById(`otp-${index + 1}`)
+      if (nextInput) {
+        nextInput.focus()
+      }
     }
   }
 
-  const handlePrev = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1)
-      window.scrollTo(0, 0)
-    }
+  const handleOtpSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    // Simulate API call to verify OTP
+    setTimeout(() => {
+      setIsLoading(false)
+      setStep("location")
+    }, 1000)
   }
 
-  const handleSubmit = () => {
-    // In a real app, this would submit the data to an API
-    console.log("Form submitted:", formData)
-    // Redirect to success page
-    window.location.href = "/business/register/success"
+  const handleLocationSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    // Simulate API call to save location
+    setTimeout(() => {
+      setIsLoading(false)
+      setStep("success")
+    }, 1000)
   }
 
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        // Combined Business Information and Location
-        return (
-          <div className="space-y-8">
-            <div>
-              <h3 className="text-lg font-medium mb-4">Business Information</h3>
-              <BusinessBasicInfoForm formData={formData} updateFormData={updateFormData} />
-            </div>
-            <div>
-              <h3 className="text-lg font-medium mb-4">Business Location</h3>
-              <BusinessLocationForm formData={formData} updateFormData={updateFormData} />
+  const handleUseCurrentLocation = () => {
+    setIsLoading(true)
+
+    // Simulate getting current location
+    setTimeout(() => {
+      setLocation({
+        address: "123 Main Street",
+        city: "Mumbai",
+        state: "Maharashtra",
+        pincode: "400001",
+      })
+      setIsLoading(false)
+      setShowLocationDialog(false)
+    }, 1000)
+  }
+
+  const handleCompleteRegistration = () => {
+    router.push("/business/register/complete")
+  }
+
+  const renderPhoneStep = () => (
+    <form onSubmit={handlePhoneSubmit}>
+      <Card className="border-none shadow-none">
+        <CardHeader className="space-y-1 p-0 mb-4">
+          <CardTitle className="text-2xl font-bold">Quick Registration</CardTitle>
+          <CardDescription>Enter your phone number to get started. We'll send you an OTP to verify.</CardDescription>
+        </CardHeader>
+        <CardContent className="p-0 space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone Number</Label>
+            <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-rose-500 focus-within:border-rose-500">
+              <div className="px-3 py-2 bg-gray-50 text-gray-500 border-r rounded-l-md">+91</div>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="98765 43210"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                required
+              />
             </div>
           </div>
-        )
-      case 2:
-        // Business Hours remains as is
-        return <BusinessHoursForm formData={formData} updateFormData={updateFormData} />
-      case 3:
-        // Combined Services and Photos
-        return (
-          <div className="space-y-8">
-            <div>
-              <h3 className="text-lg font-medium mb-4">Services Offered</h3>
-              <BusinessServicesForm formData={formData} updateFormData={updateFormData} />
+          <div className="space-y-2">
+            <Label htmlFor="businessName">Business Name</Label>
+            <Input
+              id="businessName"
+              placeholder="e.g. Royal Gents Salon"
+              value={businessName}
+              onChange={(e) => setBusinessName(e.target.value)}
+              required
+            />
+          </div>
+        </CardContent>
+        <CardFooter className="p-0 mt-6">
+          <Button
+            type="submit"
+            className="w-full bg-rose-600 hover:bg-rose-700"
+            disabled={isLoading || !phoneNumber || !businessName}
+          >
+            {isLoading ? "Sending OTP..." : "Get OTP"}
+          </Button>
+        </CardFooter>
+      </Card>
+    </form>
+  )
+
+  const renderOtpStep = () => (
+    <form onSubmit={handleOtpSubmit}>
+      <Card className="border-none shadow-none">
+        <CardHeader className="space-y-1 p-0 mb-4">
+          <CardTitle className="text-2xl font-bold">Verify Your Number</CardTitle>
+          <CardDescription>We've sent a 6-digit code to {phoneNumber}. Please enter it below.</CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="flex justify-between gap-2 mb-6">
+            {otp.map((digit, index) => (
+              <Input
+                key={index}
+                id={`otp-${index}`}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={1}
+                value={digit}
+                onChange={(e) => handleOtpChange(index, e.target.value)}
+                className="w-12 h-12 text-center text-xl"
+                required
+              />
+            ))}
+          </div>
+          <div className="text-center">
+            <Button variant="link" type="button" className="text-rose-600 p-0 h-auto" onClick={() => setStep("phone")}>
+              Change phone number
+            </Button>
+          </div>
+        </CardContent>
+        <CardFooter className="p-0 mt-6">
+          <Button
+            type="submit"
+            className="w-full bg-rose-600 hover:bg-rose-700"
+            disabled={isLoading || otp.some((digit) => !digit)}
+          >
+            {isLoading ? "Verifying..." : "Verify OTP"}
+          </Button>
+        </CardFooter>
+      </Card>
+    </form>
+  )
+
+  const renderLocationStep = () => (
+    <form onSubmit={handleLocationSubmit}>
+      <Card className="border-none shadow-none">
+        <CardHeader className="space-y-1 p-0 mb-4">
+          <CardTitle className="text-2xl font-bold">Add Your Location</CardTitle>
+          <CardDescription>Let customers find your business easily. You can always update this later.</CardDescription>
+        </CardHeader>
+        <CardContent className="p-0 space-y-4">
+          <div className="bg-gray-50 border rounded-lg p-4 flex items-center justify-between">
+            <div className="flex items-center">
+              <MapPin className="h-5 w-5 text-rose-500 mr-2" />
+              <div>
+                <p className="font-medium">Quick Location Setup</p>
+                <p className="text-sm text-gray-500">Use your current location or search</p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-medium mb-4">Photos & Gallery</h3>
-              <BusinessPhotosForm formData={formData} updateFormData={updateFormData} />
+            <Button type="button" variant="outline" onClick={() => setShowLocationDialog(true)} className="shrink-0">
+              Set Location
+            </Button>
+          </div>
+
+          {location.address && (
+            <div className="border rounded-lg p-4 bg-green-50">
+              <div className="flex items-start">
+                <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
+                <div>
+                  <p className="font-medium">Location Added</p>
+                  <p className="text-sm">{location.address}</p>
+                  <p className="text-sm">
+                    {location.city}, {location.state} - {location.pincode}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+        <CardFooter className="p-0 mt-6">
+          <Button
+            type="submit"
+            className="w-full bg-rose-600 hover:bg-rose-700"
+            disabled={isLoading || !location.address}
+          >
+            {isLoading ? "Saving..." : "Continue"}
+          </Button>
+        </CardFooter>
+      </Card>
+    </form>
+  )
+
+  const renderSuccessStep = () => (
+    <Card className="border-none shadow-none">
+      <CardHeader className="space-y-1 p-0 mb-4 text-center">
+        <div className="mx-auto bg-green-100 rounded-full p-3 mb-4">
+          <CheckCircle className="h-8 w-8 text-green-600" />
+        </div>
+        <CardTitle className="text-2xl font-bold">Registration Successful!</CardTitle>
+        <CardDescription>
+          Your business is now registered with Trimly. You can now complete your profile.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-0">
+        <div className="space-y-4 mt-4">
+          <div className="border rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Store className="h-5 w-5 text-rose-500 mr-3" />
+                <div>
+                  <p className="font-medium">{businessName}</p>
+                  <p className="text-sm text-gray-500">
+                    {location.city}, {location.state}
+                  </p>
+                </div>
+              </div>
+              <CheckCircle className="h-5 w-5 text-green-500" />
             </div>
           </div>
-        )
-      case 4:
-        // Owner Information remains as is
-        return <BusinessOwnerForm formData={formData} updateFormData={updateFormData} />
-      case 5:
-        // Review & Submit remains as is
-        return <BusinessReviewForm formData={formData} />
-      default:
-        return null
-    }
-  }
-
-  const getStepTitle = () => {
-    switch (currentStep) {
-      case 1:
-        return "Business Details"
-      case 2:
-        return "Business Hours"
-      case 3:
-        return "Services & Photos"
-      case 4:
-        return "Owner Information"
-      case 5:
-        return "Review & Submit"
-      default:
-        return ""
-    }
-  }
-
-  const isStepValid = () => {
-    // Updated validation to make email optional and require phone
-    switch (currentStep) {
-      case 1:
-        return (
-          !!formData.businessName &&
-          !!formData.businessType &&
-          !!formData.businessPhone &&
-          !!formData.address &&
-          !!formData.city &&
-          !!formData.pincode
-        )
-      case 2:
-        return true // Hours are pre-filled
-      case 3:
-        return formData.services.length > 0
-      case 4:
-        return (
-          !!formData.ownerName &&
-          !!formData.ownerPhone &&
-          !!formData.password &&
-          formData.password === formData.confirmPassword
-        )
-      default:
-        return true
-    }
-  }
+        </div>
+      </CardContent>
+      <CardFooter className="p-0 mt-6 flex flex-col space-y-3">
+        <Button onClick={handleCompleteRegistration} className="w-full bg-rose-600 hover:bg-rose-700">
+          Complete Your Profile
+          <ChevronRight className="ml-2 h-4 w-4" />
+        </Button>
+        <Button variant="outline" onClick={() => router.push("/business/dashboard")} className="w-full">
+          Go to Dashboard
+        </Button>
+      </CardFooter>
+    </Card>
+  )
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -185,54 +298,114 @@ export default function BusinessRegistrationPage() {
             </div>
           </Link>
           <div className="text-sm text-gray-500">
-            Step {currentStep} of {totalSteps}
+            {step === "phone" && "Step 1 of 3"}
+            {step === "otp" && "Step 2 of 3"}
+            {step === "location" && "Step 3 of 3"}
+            {step === "success" && "Complete"}
           </div>
         </div>
       </header>
 
-      <main className="flex-1 container max-w-2xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold mb-2">{getStepTitle()}</h1>
-          <p className="text-gray-600">
-            {currentStep === totalSteps
-              ? "Please review your information before submitting."
-              : "Please fill in the required information to continue."}
-          </p>
-        </div>
-
+      <main className="flex-1 container max-w-md mx-auto px-4 py-8">
         {/* Progress Bar */}
         <div className="w-full bg-gray-200 rounded-full h-2.5 mb-8">
           <div
-            className="bg-rose-600 h-2.5 rounded-full"
-            style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+            className="bg-rose-600 h-2.5 rounded-full transition-all duration-300"
+            style={{
+              width: step === "phone" ? "33%" : step === "otp" ? "66%" : "100%",
+            }}
           ></div>
         </div>
 
         {/* Step Content */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">{renderStepContent()}</div>
-
-        {/* Navigation Buttons */}
-        <div className="flex justify-between">
-          <Button
-            variant="outline"
-            onClick={handlePrev}
-            disabled={currentStep === 1}
-            className={currentStep === 1 ? "invisible" : ""}
-          >
-            Previous
-          </Button>
-          {currentStep < totalSteps ? (
-            <Button onClick={handleNext} disabled={!isStepValid()} className="bg-rose-600 hover:bg-rose-700">
-              Next
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          ) : (
-            <Button onClick={handleSubmit} className="bg-rose-600 hover:bg-rose-700">
-              Submit Registration
-            </Button>
-          )}
-        </div>
+        {step === "phone" && renderPhoneStep()}
+        {step === "otp" && renderOtpStep()}
+        {step === "location" && renderLocationStep()}
+        {step === "success" && renderSuccessStep()}
       </main>
+
+      {/* Location Dialog */}
+      <Dialog open={showLocationDialog} onOpenChange={setShowLocationDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Set Business Location</DialogTitle>
+            <DialogDescription>Choose how you want to set your business location</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={handleUseCurrentLocation}
+              disabled={isLoading}
+            >
+              <MapPin className="mr-2 h-4 w-4" />
+              Use current location
+            </Button>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-muted-foreground">Or enter manually</span>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="address">Address</Label>
+                <Input
+                  id="address"
+                  placeholder="Shop/Building name, Street"
+                  value={location.address}
+                  onChange={(e) => setLocation({ ...location, address: e.target.value })}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="city">City</Label>
+                  <Input
+                    id="city"
+                    placeholder="City"
+                    value={location.city}
+                    onChange={(e) => setLocation({ ...location, city: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="state">State</Label>
+                  <Input
+                    id="state"
+                    placeholder="State"
+                    value={location.state}
+                    onChange={(e) => setLocation({ ...location, state: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="pincode">PIN Code</Label>
+                <Input
+                  id="pincode"
+                  placeholder="PIN Code"
+                  value={location.pincode}
+                  onChange={(e) => setLocation({ ...location, pincode: e.target.value })}
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              className="bg-rose-600 hover:bg-rose-700"
+              onClick={() => {
+                if (location.address && location.city && location.state && location.pincode) {
+                  setShowLocationDialog(false)
+                }
+              }}
+              disabled={!location.address || !location.city || !location.state || !location.pincode}
+            >
+              Save Location
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 py-4">

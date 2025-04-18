@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, Check, Calendar, Clock, Users } from "lucide-react"
+import { ArrowRight, Check, Calendar, Clock, Users, Gift } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { TrimlyLogo } from "@/components/trimly-logo"
 
@@ -85,6 +85,15 @@ export default function BusinessLandingPage() {
                 </Button>
               </Link>
             </div>
+            <div className="mt-4 text-center">
+              <Link
+                href="/business/coupons-explained"
+                className="text-rose-600 hover:underline inline-flex items-center"
+              >
+                <Gift className="h-4 w-4 mr-1" />
+                Learn about our coupon system
+              </Link>
+            </div>
           </div>
         </section>
 
@@ -165,6 +174,19 @@ export default function BusinessLandingPage() {
                     </div>
                   </div>
                   <p>Marketing tools and promotions</p>
+                </div>
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 mr-3">
+                    <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center">
+                      <Check className="h-4 w-4 text-green-600" />
+                    </div>
+                  </div>
+                  <p>
+                    <Link href="/business/coupons-explained" className="text-rose-600 hover:underline">
+                      Coupon system
+                    </Link>{" "}
+                    for customer acquisition and retention
+                  </p>
                 </div>
                 <div className="flex items-start">
                   <div className="flex-shrink-0 mr-3">

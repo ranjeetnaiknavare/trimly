@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Search, Calendar, User, LogOut } from "lucide-react"
+import { Home, Search, Calendar, User, LogOut, Tag } from "lucide-react"
 import { useAuth } from "@/components/auth/auth-context"
 import { Button } from "@/components/ui/button"
 import {
@@ -52,6 +52,15 @@ export function BottomNav() {
         >
           <Calendar className="h-5 w-5" />
           <span className="text-xs mt-1">Bookings</span>
+        </Link>
+        <Link
+          href="/coupons"
+          className={`flex flex-col items-center justify-center w-full h-full ${
+            pathname === "/coupons" ? "text-rose-600" : "text-gray-500"
+          }`}
+        >
+          <Tag className="h-5 w-5" />
+          <span className="text-xs mt-1">Coupons</span>
         </Link>
         {user ? (
           <DropdownMenu>

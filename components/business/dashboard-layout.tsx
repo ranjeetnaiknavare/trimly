@@ -19,6 +19,7 @@ import {
   BarChart,
   CreditCard,
   Bell,
+  Tag,
 } from "lucide-react"
 import { TrimlyLogo } from "@/components/trimly-logo"
 import { Button } from "@/components/ui/button"
@@ -86,6 +87,11 @@ const navItems: NavItem[] = [
     icon: <CreditCard className="h-5 w-5" />,
   },
   {
+    title: "Coupons",
+    href: "/business/coupons",
+    icon: <Tag className="h-5 w-5" />,
+  },
+  {
     title: "Settings",
     href: "/business/settings",
     icon: <Settings className="h-5 w-5" />,
@@ -138,7 +144,7 @@ export function BusinessDashboardLayout({ children }: BusinessDashboardLayoutPro
         <div className="p-4 border-t border-gray-200">
           <div className="flex items-center">
             <Avatar className="h-8 w-8 mr-2">
-              <AvatarImage src="/placeholder.svg?height=32&width=32&query=owner" alt="Business Owner" />
+              <AvatarImage src="/property-deed-handover.png" alt="Business Owner" />
               <AvatarFallback>BO</AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
@@ -212,7 +218,7 @@ export function BusinessDashboardLayout({ children }: BusinessDashboardLayoutPro
                 <div className="p-4 border-t border-gray-200">
                   <div className="flex items-center">
                     <Avatar className="h-8 w-8 mr-2">
-                      <AvatarImage src="/placeholder.svg?height=32&width=32&query=owner" alt="Business Owner" />
+                      <AvatarImage src="/property-deed-handover.png" alt="Business Owner" />
                       <AvatarFallback>BO</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">

@@ -10,6 +10,7 @@ import { ServiceSelectionList } from "@/components/service-selection-list"
 import { TimeSlotPicker } from "@/components/time-slot-picker"
 import { FamilyMemberSelector } from "@/components/family-member-selector"
 import { BookingSummary } from "@/components/booking-summary"
+import { CouponInput } from "@/components/coupon-input"
 
 // This would typically come from a database or API
 const getSalonData = (slug: string) => {
@@ -120,6 +121,11 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedFamilyMembers, setSelectedFamilyMembers] = useState<string[]>(["fm1"]) // Default to "You"
   const [currentStep, setCurrentStep] = useState(1)
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string
+    discount: number
+    type: "percentage" | "fixed"
+  } | null>(null)
 
   // Set initial booking type from URL parameter
   useEffect(() => {
@@ -128,10 +134,26 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
 
   const timeSlots = generateTimeSlots()
 
-  const totalAmount = selectedServices.reduce((total, serviceId) => {
-    const service = salon.services.find((s) => s.id === serviceId)
-    return total + (service?.price || 0)
-  }, 0)
+  const calculateSubtotal = () => {
+    return selectedServices.reduce((total, serviceId) => {
+      const service = salon.services.find((s) => s.id === serviceId)
+      return total + (service?.price || 0)
+    }, 0)
+  }
+
+  const calculateDiscount = () => {
+    if (!appliedCoupon) return 0
+
+    const subtotal = calculateSubtotal()
+
+    if (appliedCoupon.type === "percentage") {
+      return Math.round((subtotal * appliedCoupon.discount) / 100)
+    } else {
+      return appliedCoupon.discount
+    }
+  }
+
+  const totalAmount = calculateSubtotal() - calculateDiscount()
 
   const totalDuration = selectedServices.reduce((total, serviceId) => {
     const service = salon.services.find((s) => s.id === serviceId)
@@ -168,6 +190,18 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
     }
   }
 
+  const handleApplyCoupon = (code: string, discount: number) => {
+    setAppliedCoupon({
+      code,
+      discount,
+      type: code === "WELCOME20" ? "percentage" : "fixed",
+    })
+  }
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null)
+  }
+
   const handleSubmit = () => {
     // In a real app, this would submit the booking to an API
     // For now, we'll just navigate to a confirmation page
@@ -196,7 +230,7 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                     {selectedServices.length} services • {totalDuration} min
                   </p>
                 </div>
-                <p className="font-semibold">₹{totalAmount}</p>
+                <p className="font-semibold">₹{calculateSubtotal()}</p>
               </div>
             )}
           </div>
@@ -233,6 +267,11 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                 onToggle={handleFamilyMemberToggle}
               />
             </div>
+
+            <div>
+              <h2 className="text-lg font-semibold mb-3">Have a Coupon?</h2>
+              <CouponInput onApply={handleApplyCoupon} onRemove={handleRemoveCoupon} />
+            </div>
           </div>
         ) : (
           <div className="space-y-6">
@@ -254,6 +293,11 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                 onToggle={handleFamilyMemberToggle}
               />
             </div>
+
+            <div>
+              <h2 className="text-lg font-semibold mb-3">Have a Coupon?</h2>
+              <CouponInput onApply={handleApplyCoupon} onRemove={handleRemoveCoupon} />
+            </div>
           </div>
         )
       case 3:
@@ -269,6 +313,7 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
               familyMembers={selectedFamilyMembers}
               totalAmount={totalAmount}
               totalDuration={totalDuration}
+              appliedCoupon={appliedCoupon}
             />
 
             <div className="p-4 bg-gray-50 rounded-lg">

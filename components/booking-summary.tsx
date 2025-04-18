@@ -1,4 +1,4 @@
-import { Clock, Calendar, Users, MapPin } from "lucide-react"
+import { Clock, Calendar, Users, MapPin, Tag } from "lucide-react"
 
 interface BookingSummaryProps {
   salon: {
@@ -26,6 +26,11 @@ interface BookingSummaryProps {
   familyMembers: string[]
   totalAmount: number
   totalDuration: number
+  appliedCoupon?: {
+    code: string
+    discount: number
+    type: "percentage" | "fixed"
+  } | null
 }
 
 export function BookingSummary({
@@ -37,6 +42,7 @@ export function BookingSummary({
   familyMembers,
   totalAmount,
   totalDuration,
+  appliedCoupon = null,
 }: BookingSummaryProps) {
   // Get service names and details
   const serviceDetails = selectedServices
@@ -59,6 +65,16 @@ export function BookingSummary({
       return member?.name || ""
     })
     .filter(Boolean)
+
+  // Calculate subtotal
+  const subtotal = serviceDetails.reduce((total, service) => total + (service?.price || 0), 0)
+
+  // Calculate discount
+  const discount = appliedCoupon
+    ? appliedCoupon.type === "percentage"
+      ? Math.round((subtotal * appliedCoupon.discount) / 100)
+      : appliedCoupon.discount
+    : 0
 
   return (
     <div className="space-y-4">
@@ -117,7 +133,22 @@ export function BookingSummary({
           ))}
 
           <div className="border-t border-gray-100 pt-2 mt-2">
-            <div className="flex justify-between font-medium">
+            <div className="flex justify-between text-sm">
+              <p>Subtotal</p>
+              <p>₹{subtotal}</p>
+            </div>
+
+            {appliedCoupon && (
+              <div className="flex justify-between text-sm text-green-600 items-center">
+                <div className="flex items-center">
+                  <Tag className="h-3 w-3 mr-1" />
+                  <p>Coupon: {appliedCoupon.code}</p>
+                </div>
+                <p>-₹{discount}</p>
+              </div>
+            )}
+
+            <div className="flex justify-between font-medium mt-2">
               <p>Total</p>
               <p>₹{totalAmount}</p>
             </div>
