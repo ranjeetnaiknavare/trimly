@@ -2,6 +2,7 @@
 
 import { BusinessDashboardLayout } from "@/components/business/dashboard-layout"
 import { BillingPlans } from "@/components/business/billing/billing-plans"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function BillingPage() {
   return (
@@ -11,7 +12,22 @@ export default function BillingPage() {
         <p className="text-gray-600">Manage your subscription and billing information</p>
       </div>
 
-      <BillingPlans />
+      <Tabs defaultValue="plans">
+        <TabsList>
+          <TabsTrigger value="plans">Plans</TabsTrigger>
+          <TabsTrigger value="history">Billing History</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="plans">
+          <BillingPlans />
+        </TabsContent>
+
+        <TabsContent value="history">
+          <div className="mt-4">
+            <p className="text-gray-500">Your billing history will appear here.</p>
+          </div>
+        </TabsContent>
+      </Tabs>
     </BusinessDashboardLayout>
   )
 }

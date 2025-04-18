@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { User, Mail, Phone, MapPin, Calendar, LogOut, Heart, Star, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -27,20 +27,33 @@ export default function ProfilePage() {
     phone: "+91 98765 43210",
     address: "123 Main Street, Kothrud, Pune",
   })
+  const [isMounted, setIsMounted] = useState(false)
+
+  // Only access browser APIs after component is mounted
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   const handleSignOut = () => {
     logout()
     router.push("/")
   }
 
-  if (!user) {
-    router.push("/login")
-    return null
-  }
+  // Only check for user after component is mounted to avoid SSR issues
+  useEffect(() => {
+    if (isMounted && !user) {
+      router.push("/login")
+    }
+  }, [isMounted, user, router])
 
   const handleSaveProfile = () => {
     // In a real app, this would update the profile in the database
     setIsEditing(false)
+  }
+
+  // Don't render anything during SSR or if not authenticated
+  if (!isMounted) {
+    return null
   }
 
   return (
