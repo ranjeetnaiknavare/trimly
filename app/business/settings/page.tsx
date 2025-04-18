@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Save, User, Building, Clock, CreditCard, Bell, Shield } from "lucide-react"
+import Link from "next/link"
+import { Save, User, Building, Clock, CreditCard, Bell, Shield, Code } from "lucide-react"
 import { BusinessDashboardLayout } from "@/components/business/dashboard-layout"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -90,7 +91,7 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-4">
-        <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
+        <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7">
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <Building className="h-4 w-4" />
             <span className="hidden md:inline">Business Profile</span>
@@ -114,6 +115,10 @@ export default function SettingsPage() {
           <TabsTrigger value="security" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
             <span className="hidden md:inline">Security</span>
+          </TabsTrigger>
+          <TabsTrigger value="integrations" className="flex items-center gap-2">
+            <Code className="h-4 w-4" />
+            <span className="hidden md:inline">Integrations</span>
           </TabsTrigger>
         </TabsList>
 
@@ -552,6 +557,72 @@ export default function SettingsPage() {
                   </div>
                   <Button variant="outline">View History</Button>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="integrations">
+          <Card>
+            <CardHeader>
+              <CardTitle>Website Integrations</CardTitle>
+              <CardDescription>Connect Trimly with your website and other platforms</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Card className="border-2 border-rose-100">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">Booking Widget</CardTitle>
+                    <CardDescription>Add a booking widget to your website</CardDescription>
+                  </CardHeader>
+                  <CardContent className="pb-2">
+                    <p className="text-sm text-gray-600">
+                      Allow customers to book appointments directly from your website with our customizable widget.
+                    </p>
+                  </CardContent>
+                  <CardFooter>
+                    <Link href="/business/settings/embed-widget" className="w-full">
+                      <Button className="w-full bg-rose-600 hover:bg-rose-700">
+                        <Code className="h-4 w-4 mr-2" />
+                        Set Up Widget
+                      </Button>
+                    </Link>
+                  </CardFooter>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">Social Media</CardTitle>
+                    <CardDescription>Connect your social media accounts</CardDescription>
+                  </CardHeader>
+                  <CardContent className="pb-2">
+                    <p className="text-sm text-gray-600">
+                      Link your social media accounts to share promotions and updates automatically.
+                    </p>
+                  </CardContent>
+                  <CardFooter>
+                    <Button variant="outline" className="w-full">
+                      Connect Accounts
+                    </Button>
+                  </CardFooter>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">Google Calendar</CardTitle>
+                    <CardDescription>Sync with your Google Calendar</CardDescription>
+                  </CardHeader>
+                  <CardContent className="pb-2">
+                    <p className="text-sm text-gray-600">
+                      Automatically sync your Trimly appointments with your Google Calendar.
+                    </p>
+                  </CardContent>
+                  <CardFooter>
+                    <Button variant="outline" className="w-full">
+                      Connect Calendar
+                    </Button>
+                  </CardFooter>
+                </Card>
               </div>
             </CardContent>
           </Card>
