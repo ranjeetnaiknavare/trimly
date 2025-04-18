@@ -211,6 +211,32 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const permissions = [
+    "dashboard.view",
+    "customers.view",
+    "customers.manage",
+    "businesses.view",
+    "businesses.manage",
+    "advertisers.view",
+    "advertisers.manage",
+    "bookings.view",
+    "bookings.manage",
+    "services.view",
+    "services.manage",
+    "reviews.view",
+    "reviews.manage",
+    "coupons.view",
+    "coupons.manage",
+    "ads.view",
+    "ads.manage",
+    "analytics.view",
+    "reports.view",
+    "system.view",
+    "settings.view",
+    "settings.manage",
+    "user.manage",
+  ]
+
   return (
     <AdminContext.Provider
       value={{

@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { AvatarFallback } from "@/components/ui/avatar"
 
 import { AvatarImage } from "@/components/ui/avatar"
@@ -10,7 +12,18 @@ import { useState } from "react"
 import AdminShell from "@/components/admin/admin-shell"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Users, Store, Megaphone, Calendar, TrendingUp, DollarSign, Star, AlertCircle } from "lucide-react"
+import {
+  Users,
+  Store,
+  Calendar,
+  Star,
+  DollarSign,
+  Megaphone,
+  MousePointerClick,
+  Eye,
+  AlertCircle,
+  TrendingUp,
+} from "lucide-react"
 
 export default function AdminDashboard() {
   const [timeRange, setTimeRange] = useState("7d")
@@ -75,6 +88,45 @@ export default function AdminDashboard() {
     },
   ]
 
+  // Mock data for dashboard stats
+  const dashboardStats = {
+    totalCustomers: "12,345",
+    activeBusinesses: "1,234",
+    bookingsToday: "789",
+    pendingAds: "50",
+    totalAdRevenue: "₹15,000",
+  }
+
+  const adStats = {
+    totalImpressions: 1234567,
+    totalClicks: 12345,
+  }
+
+  const StatsCard = ({
+    title,
+    value,
+    icon,
+    trend,
+    trendValue,
+  }: { title: string; value: string; icon: React.ReactNode; trend: string; trendValue: string }) => {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between space-x-4">
+            <div>
+              <p className="text-sm font-medium text-gray-500">{title}</p>
+              <div className="flex items-baseline">
+                <p className="text-2xl font-semibold">{value}</p>
+                <p className={`ml-2 text-sm ${trend === "up" ? "text-green-500" : "text-red-500"}`}>{trendValue}</p>
+              </div>
+            </div>
+            <div className="p-2 rounded-full bg-blue-500">{icon}</div>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <AdminShell>
       <div className="space-y-6">
@@ -94,28 +146,75 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat, i) => (
-            <Card key={i}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between space-x-4">
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">{stat.title}</p>
-                    <div className="flex items-baseline">
-                      <p className="text-2xl font-semibold">{stat.value}</p>
-                      <p className={`ml-2 text-sm ${stat.trend === "up" ? "text-green-500" : "text-red-500"}`}>
-                        {stat.change}
-                      </p>
-                    </div>
-                  </div>
-                  <div className={`p-2 rounded-full ${stat.color}`}>
-                    <stat.icon className="h-5 w-5 text-white" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <StatsCard
+            title="Total Customers"
+            value={dashboardStats.totalCustomers}
+            icon={<Users className="h-5 w-5" />}
+            trend="up"
+            trendValue="12%"
+          />
+          <StatsCard
+            title="Active Businesses"
+            value={dashboardStats.activeBusinesses}
+            icon={<Store className="h-5 w-5" />}
+            trend="up"
+            trendValue="5%"
+          />
+          <StatsCard
+            title="Bookings Today"
+            value={dashboardStats.bookingsToday}
+            icon={<Calendar className="h-5 w-5" />}
+            trend="down"
+            trendValue="3%"
+          />
+          <StatsCard
+            title="Pending Ads"
+            value={dashboardStats.pendingAds}
+            icon={<Megaphone className="h-5 w-5" />}
+            trend="up"
+            trendValue="8%"
+          />
         </div>
+
+        {/* Ad Performance Overview */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Ad Performance Overview</CardTitle>
+            <CardDescription>Key metrics for all advertisements</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="flex items-center space-x-4">
+                <div className="p-2 bg-blue-100 rounded-full">
+                  <Eye className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Total Impressions</p>
+                  <p className="text-xl font-bold">{adStats.totalImpressions.toLocaleString()}</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="p-2 bg-green-100 rounded-full">
+                  <MousePointerClick className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Total Clicks</p>
+                  <p className="text-xl font-bold">{adStats.totalClicks.toLocaleString()}</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="p-2 bg-purple-100 rounded-full">
+                  <DollarSign className="h-5 w-5 text-purple-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Ad Revenue</p>
+                  <p className="text-xl font-bold">{dashboardStats.totalAdRevenue}</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
           <Card className="col-span-4">

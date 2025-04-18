@@ -66,12 +66,13 @@ export default function ReportsPage() {
         </div>
 
         <Tabs value={selectedReport} onValueChange={setSelectedReport} className="space-y-6">
-          <TabsList className="grid grid-cols-5 w-full max-w-3xl">
+          <TabsList className="grid grid-cols-6 w-full max-w-4xl">
             <TabsTrigger value="bookings">Bookings</TabsTrigger>
             <TabsTrigger value="revenue">Revenue</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="services">Services</TabsTrigger>
             <TabsTrigger value="businesses">Businesses</TabsTrigger>
+            <TabsTrigger value="ads">Ads</TabsTrigger>
           </TabsList>
 
           <TabsContent value="bookings" className="space-y-6">
@@ -492,6 +493,106 @@ export default function ReportsPage() {
                           <TableCell>{row.customers}</TableCell>
                           <TableCell>{row.rating}</TableCell>
                           <TableCell className="text-green-600">{row.growth}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="ads" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Ad Performance Reports</CardTitle>
+                <CardDescription>Detailed reports on advertisement performance</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                  <div className="bg-gray-50 p-4 rounded-md">
+                    <p className="text-sm text-gray-500">Total Impressions</p>
+                    <p className="text-xl font-bold">1,234,567</p>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-md">
+                    <p className="text-sm text-gray-500">Total Clicks</p>
+                    <p className="text-xl font-bold">87,654</p>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-md">
+                    <p className="text-sm text-gray-500">Average CTR</p>
+                    <p className="text-xl font-bold">7.1%</p>
+                  </div>
+                </div>
+
+                <div className="border rounded-md">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Ad Title</TableHead>
+                        <TableHead>Business</TableHead>
+                        <TableHead>Duration</TableHead>
+                        <TableHead>Impressions</TableHead>
+                        <TableHead>Clicks</TableHead>
+                        <TableHead>CTR</TableHead>
+                        <TableHead>Revenue</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {[
+                        {
+                          title: "Summer Special Discount",
+                          business: "Urban Grooming Space",
+                          duration: "7 days",
+                          impressions: 12450,
+                          clicks: 870,
+                          ctr: "6.99%",
+                          revenue: "₹999",
+                        },
+                        {
+                          title: "Weekend Special",
+                          business: "Elegant Beauty Space",
+                          duration: "7 days",
+                          impressions: 8760,
+                          clicks: 540,
+                          ctr: "6.16%",
+                          revenue: "₹999",
+                        },
+                        {
+                          title: "Premium Package Deal",
+                          business: "Style Studio",
+                          duration: "14 days",
+                          impressions: 15600,
+                          clicks: 980,
+                          ctr: "6.28%",
+                          revenue: "₹1,499",
+                        },
+                        {
+                          title: "New Customer Offer",
+                          business: "Serene Beauty Space",
+                          duration: "30 days",
+                          impressions: 32400,
+                          clicks: 2160,
+                          ctr: "6.67%",
+                          revenue: "₹2,999",
+                        },
+                        {
+                          title: "Flash Sale",
+                          business: "Urban Chic Salon",
+                          duration: "1 day",
+                          impressions: 3200,
+                          clicks: 240,
+                          ctr: "7.50%",
+                          revenue: "₹199",
+                        },
+                      ].map((row, i) => (
+                        <TableRow key={i}>
+                          <TableCell>{row.title}</TableCell>
+                          <TableCell>{row.business}</TableCell>
+                          <TableCell>{row.duration}</TableCell>
+                          <TableCell>{row.impressions.toLocaleString()}</TableCell>
+                          <TableCell>{row.clicks.toLocaleString()}</TableCell>
+                          <TableCell>{row.ctr}</TableCell>
+                          <TableCell>{row.revenue}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

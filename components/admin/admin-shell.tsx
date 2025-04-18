@@ -67,6 +67,12 @@ export default function AdminShell({ children, requiredPermission }: AdminShellP
     { name: "Bookings", href: "/trimly-admin/bookings", icon: Calendar, permission: "bookings.view" },
     { name: "Services", href: "/trimly-admin/services", icon: Scissors, permission: "services.view" },
     { name: "Coupons", href: "/trimly-admin/coupons", icon: Tag, permission: "coupons.view" },
+    {
+      name: "Ads",
+      href: "/trimly-admin/ads",
+      icon: Megaphone,
+      permission: "ads.view",
+    },
     { name: "Analytics", href: "/trimly-admin/analytics", icon: BarChart3, permission: "analytics.view" },
     { name: "Reviews", href: "/trimly-admin/reviews", icon: MessageSquare, permission: "reviews.view" },
     { name: "Reports", href: "/trimly-admin/reports", icon: FileText, permission: "reports.view" },
