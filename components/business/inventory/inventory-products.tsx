@@ -34,8 +34,8 @@ const initialProducts = [
     name: "Shampoo - Premium",
     category: "Hair Care",
     sku: "SH-PREM-001",
-    price: 24.99,
-    cost: 12.5,
+    price: 1499,
+    cost: 750,
     stock: 32,
     threshold: 15,
     supplier: "Beauty Wholesale Inc.",
@@ -46,8 +46,8 @@ const initialProducts = [
     name: "Hair Color - Natural Black",
     category: "Hair Color",
     sku: "HC-BLK-001",
-    price: 18.99,
-    cost: 8.75,
+    price: 1199,
+    cost: 525,
     stock: 15,
     threshold: 10,
     supplier: "ColorTech Solutions",
@@ -58,8 +58,8 @@ const initialProducts = [
     name: "Conditioner - Repair",
     category: "Hair Care",
     sku: "CD-REP-001",
-    price: 22.99,
-    cost: 11.25,
+    price: 1399,
+    cost: 675,
     stock: 28,
     threshold: 15,
     supplier: "Beauty Wholesale Inc.",
@@ -70,8 +70,8 @@ const initialProducts = [
     name: "Hair Serum",
     category: "Hair Care",
     sku: "HS-SRM-001",
-    price: 32.99,
-    cost: 16.5,
+    price: 1999,
+    cost: 990,
     stock: 12,
     threshold: 15,
     supplier: "Luxury Beauty Products",
@@ -82,8 +82,8 @@ const initialProducts = [
     name: "Styling Gel - Strong Hold",
     category: "Styling",
     sku: "SG-STR-001",
-    price: 15.99,
-    cost: 7.25,
+    price: 999,
+    cost: 435,
     stock: 18,
     threshold: 20,
     supplier: "Style Masters Co.",
@@ -94,8 +94,8 @@ const initialProducts = [
     name: "Facial Cleanser",
     category: "Skin Care",
     sku: "FC-CLN-001",
-    price: 28.99,
-    cost: 14.5,
+    price: 1799,
+    cost: 870,
     stock: 4,
     threshold: 10,
     supplier: "Pure Skin Solutions",
@@ -106,8 +106,8 @@ const initialProducts = [
     name: "Beard Oil",
     category: "Men's Grooming",
     sku: "BO-OIL-001",
-    price: 19.99,
-    cost: 9.75,
+    price: 1199,
+    cost: 585,
     stock: 3,
     threshold: 8,
     supplier: "Gentleman's Choice",
@@ -222,6 +222,11 @@ export function InventoryProducts() {
     return "text-green-500"
   }
 
+  // Format price to INR
+  const formatPrice = (price: number) => {
+    return `₹${price.toFixed(2)}`
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -255,7 +260,7 @@ export function InventoryProducts() {
                 </div>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
+                <SelectItem value="all">All Categories</SelectItem>
                 {categories.map((category) => (
                   <SelectItem key={category} value={category}>
                     {category}
@@ -277,7 +282,7 @@ export function InventoryProducts() {
                 </div>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Stock Levels</SelectItem>
+                <SelectItem value="all">All Stock Levels</SelectItem>
                 <SelectItem value="low">Low Stock</SelectItem>
                 <SelectItem value="out">Out of Stock</SelectItem>
                 <SelectItem value="ok">In Stock</SelectItem>
@@ -312,7 +317,7 @@ export function InventoryProducts() {
                     <TableCell className="font-medium">{product.name}</TableCell>
                     <TableCell>{product.category}</TableCell>
                     <TableCell>{product.sku}</TableCell>
-                    <TableCell>${product.price.toFixed(2)}</TableCell>
+                    <TableCell>{formatPrice(product.price)}</TableCell>
                     <TableCell>
                       <div className="flex flex-col gap-1">
                         <div className="flex justify-between text-sm">
@@ -441,7 +446,7 @@ export function InventoryProducts() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="price">Price ($)</Label>
+                <Label htmlFor="price">Price (₹)</Label>
                 <Input
                   id="price"
                   type="number"
@@ -450,7 +455,7 @@ export function InventoryProducts() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="cost">Cost ($)</Label>
+                <Label htmlFor="cost">Cost (₹)</Label>
                 <Input
                   id="cost"
                   type="number"
@@ -566,7 +571,7 @@ export function InventoryProducts() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="edit-price">Price ($)</Label>
+                  <Label htmlFor="edit-price">Price (₹)</Label>
                   <Input
                     id="edit-price"
                     type="number"
@@ -575,7 +580,7 @@ export function InventoryProducts() {
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="edit-cost">Cost ($)</Label>
+                  <Label htmlFor="edit-cost">Cost (₹)</Label>
                   <Input
                     id="edit-cost"
                     type="number"

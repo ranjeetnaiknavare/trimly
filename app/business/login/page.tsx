@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { ArrowLeft, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,6 +12,8 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TrimlyLogo } from "@/components/trimly-logo"
+import { useAuth } from "@/components/auth/auth-context"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default function BusinessLoginPage() {
   // Phone login state
@@ -25,6 +28,10 @@ export default function BusinessLoginPage() {
 
   // Common state
   const [rememberMe, setRememberMe] = useState(false)
+  const [error, setError] = useState("")
+
+  const { login } = useAuth()
+  const router = useRouter()
 
   const handleSendOTP = () => {
     // In a real app, this would send an OTP to the phone number
@@ -37,16 +44,26 @@ export default function BusinessLoginPage() {
     e.preventDefault()
     // In a real app, this would verify the OTP and log in
     console.log("OTP login attempt with:", { phone, otp, rememberMe })
-    // Redirect to dashboard on success
-    window.location.href = "/business/dashboard"
+    // For demo purposes, we'll just redirect to dashboard
+    router.push("/business/dashboard")
   }
 
-  const handlePasswordLogin = (e: React.FormEvent) => {
+  const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    // In a real app, this would authenticate with an API
-    console.log("Password login attempt with:", { email, password, rememberMe })
-    // Redirect to dashboard on success
-    window.location.href = "/business/dashboard"
+    setError("")
+
+    if (!email || !password) {
+      setError("Please fill in all fields")
+      return
+    }
+
+    const success = await login(email, password, "business")
+
+    if (success) {
+      router.push("/business/dashboard")
+    } else {
+      setError("Invalid email or password")
+    }
   }
 
   return (
@@ -66,6 +83,12 @@ export default function BusinessLoginPage() {
       <main className="flex-1 container max-w-md mx-auto px-4 py-12">
         <div className="bg-white rounded-lg shadow-sm p-8">
           <h1 className="text-2xl font-bold mb-6 text-center">Business Login</h1>
+
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
           <Tabs defaultValue="phone" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">

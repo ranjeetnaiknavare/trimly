@@ -1,149 +1,238 @@
 "use client"
 
-import { useState, type ReactNode } from "react"
+import type React from "react"
+
+import { useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
   LayoutDashboard,
   Calendar,
-  Clock,
   Users,
+  Scissors,
+  Star,
+  Package,
   Settings,
   LogOut,
   Menu,
   X,
+  BarChart,
+  CreditCard,
   Bell,
-  ChevronDown,
-  BarChart3,
-  Scissors,
-  MessageSquare,
-  ShoppingBag,
-  MapPin,
 } from "lucide-react"
+import { TrimlyLogo } from "@/components/trimly-logo"
 import { Button } from "@/components/ui/button"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useAuth } from "@/components/auth/auth-context"
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { TrimlyLogo } from "@/components/trimly-logo"
+
+interface NavItem {
+  title: string
+  href: string
+  icon: React.ReactNode
+}
+
+const navItems: NavItem[] = [
+  {
+    title: "Dashboard",
+    href: "/business/dashboard",
+    icon: <LayoutDashboard className="h-5 w-5" />,
+  },
+  {
+    title: "Appointments",
+    href: "/business/appointments",
+    icon: <Calendar className="h-5 w-5" />,
+  },
+  {
+    title: "Queue",
+    href: "/business/queue",
+    icon: <Users className="h-5 w-5" />,
+  },
+  {
+    title: "Customers",
+    href: "/business/customers",
+    icon: <Users className="h-5 w-5" />,
+  },
+  {
+    title: "Services",
+    href: "/business/services",
+    icon: <Scissors className="h-5 w-5" />,
+  },
+  {
+    title: "Reviews",
+    href: "/business/reviews",
+    icon: <Star className="h-5 w-5" />,
+  },
+  {
+    title: "Inventory",
+    href: "/business/inventory",
+    icon: <Package className="h-5 w-5" />,
+  },
+  {
+    title: "Analytics",
+    href: "/business/analytics",
+    icon: <BarChart className="h-5 w-5" />,
+  },
+  {
+    title: "Billing",
+    href: "/business/billing",
+    icon: <CreditCard className="h-5 w-5" />,
+  },
+  {
+    title: "Settings",
+    href: "/business/settings",
+    icon: <Settings className="h-5 w-5" />,
+  },
+]
 
 interface BusinessDashboardLayoutProps {
-  children: ReactNode
+  children: React.ReactNode
 }
 
 export function BusinessDashboardLayout({ children }: BusinessDashboardLayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
   const pathname = usePathname()
+  const { user, logout } = useAuth()
+  const router = useRouter()
 
-  const sidebarItems = [
-    { icon: <LayoutDashboard className="h-5 w-5" />, label: "Dashboard", href: "/business/dashboard" },
-    { icon: <Calendar className="h-5 w-5" />, label: "Appointments", href: "/business/appointments" },
-    { icon: <Clock className="h-5 w-5" />, label: "Queue Management", href: "/business/queue" },
-    { icon: <MapPin className="h-5 w-5" />, label: "Locations", href: "/business/locations" },
-    { icon: <Users className="h-5 w-5" />, label: "Customers", href: "/business/customers" },
-    { icon: <Scissors className="h-5 w-5" />, label: "Services", href: "/business/services" },
-    { icon: <MessageSquare className="h-5 w-5" />, label: "Reviews", href: "/business/reviews" },
-    { icon: <ShoppingBag className="h-5 w-5" />, label: "Inventory", href: "/business/inventory" },
-    { icon: <BarChart3 className="h-5 w-5" />, label: "Analytics", href: "/business/analytics" },
-    { icon: <Settings className="h-5 w-5" />, label: "Settings", href: "/business/settings" },
-  ]
+  const handleSignOut = () => {
+    logout()
+    router.push("/business/login")
+  }
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Mobile Sidebar Backdrop */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)}></div>
-      )}
-
-      {/* Sidebar */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:inset-auto ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex flex-col w-64 border-r border-gray-200 bg-white">
+        <div className="h-16 flex items-center px-6 border-b border-gray-200">
           <Link href="/business/dashboard">
             <TrimlyLogo size="sm" />
           </Link>
-          <button className="lg:hidden" onClick={() => setSidebarOpen(false)}>
-            <X className="h-6 w-6" />
-          </button>
         </div>
-        <div className="p-4">
-          <nav className="space-y-1">
-            {sidebarItems.map((item) => {
-              const isActive = pathname === item.href
-              return (
-                <Link key={item.href} href={item.href}>
-                  <div
-                    className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
-                      isActive ? "bg-rose-50 text-rose-600" : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                    }`}
-                  >
-                    {item.icon}
-                    <span className="ml-3">{item.label}</span>
-                  </div>
+        <nav className="flex-1 overflow-y-auto py-4 px-3">
+          <ul className="space-y-1">
+            {navItems.map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
+                    pathname === item.href
+                      ? "bg-rose-50 text-rose-600"
+                      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                  }`}
+                >
+                  <span className="mr-3">{item.icon}</span>
+                  {item.title}
                 </Link>
-              )
-            })}
-          </nav>
-        </div>
-        <div className="absolute bottom-0 w-full p-4 border-t border-gray-200">
-          <Button variant="ghost" className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700">
-            <LogOut className="h-5 w-5 mr-2" />
-            Sign Out
-          </Button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div className="p-4 border-t border-gray-200">
+          <div className="flex items-center">
+            <Avatar className="h-8 w-8 mr-2">
+              <AvatarImage src="/placeholder.svg?height=32&width=32&query=owner" alt="Business Owner" />
+              <AvatarFallback>BO</AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 truncate">Royal Gents Salon</p>
+              <p className="text-xs text-gray-500 truncate">Rajesh Patel</p>
+            </div>
+            <Button variant="ghost" size="icon" onClick={handleSignOut}>
+              <LogOut className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200">
-          <div className="flex items-center justify-between h-16 px-4">
-            <div className="flex items-center">
-              <button className="lg:hidden mr-2" onClick={() => setSidebarOpen(true)}>
-                <Menu className="h-6 w-6" />
-              </button>
-              <h2 className="text-lg font-semibold">Business Dashboard</h2>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full"></span>
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center">
-                    <Avatar className="h-8 w-8 mr-2">
-                      <AvatarImage src="/diverse-group-city.png" />
-                      <AvatarFallback>RS</AvatarFallback>
-                    </Avatar>
-                    <span className="hidden md:inline">Rahul Sharma</span>
-                    <ChevronDown className="h-4 w-4 ml-1" />
+      {/* Mobile Navigation */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-white border-b border-gray-200">
+        <div className="flex items-center justify-between h-16 px-4">
+          <Link href="/business/dashboard">
+            <TrimlyLogo size="sm" />
+          </Link>
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <Bell className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <div className="py-2 px-4 text-sm text-gray-500">No new notifications</div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Sheet open={isMobileNavOpen} onOpenChange={setIsMobileNavOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-64 p-0">
+                <div className="h-16 flex items-center px-6 border-b border-gray-200">
+                  <TrimlyLogo size="sm" />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-4"
+                    onClick={() => setIsMobileNavOpen(false)}
+                  >
+                    <X className="h-5 w-5" />
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
-                  <DropdownMenuItem>Settings</DropdownMenuItem>
-                  <DropdownMenuItem>Billing</DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-red-600">Sign out</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+                </div>
+                <nav className="flex-1 overflow-y-auto py-4 px-3">
+                  <ul className="space-y-1">
+                    {navItems.map((item) => (
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
+                            pathname === item.href
+                              ? "bg-rose-50 text-rose-600"
+                              : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                          }`}
+                          onClick={() => setIsMobileNavOpen(false)}
+                        >
+                          <span className="mr-3">{item.icon}</span>
+                          {item.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+                <div className="p-4 border-t border-gray-200">
+                  <div className="flex items-center">
+                    <Avatar className="h-8 w-8 mr-2">
+                      <AvatarImage src="/placeholder.svg?height=32&width=32&query=owner" alt="Business Owner" />
+                      <AvatarFallback>BO</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">Royal Gents Salon</p>
+                      <p className="text-xs text-gray-500 truncate">Rajesh Patel</p>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={handleSignOut}>
+                      <LogOut className="h-5 w-5" />
+                    </Button>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
-        </header>
+        </div>
+      </div>
 
-        {/* Main Content */}
-        <main className="flex-1 overflow-y-auto p-4">{children}</main>
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        <main className="flex-1 py-6 px-4 md:px-8 mt-16 md:mt-0">{children}</main>
       </div>
     </div>
   )

@@ -1,148 +1,176 @@
-import Link from "next/link"
-import {
-  User,
-  Settings,
-  CreditCard,
-  Heart,
-  Gift,
-  HelpCircle,
-  LogOut,
-  ChevronRight,
-  Bell,
-  Shield,
-  Users,
-  Star,
-} from "lucide-react"
+"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { User, Mail, Phone, MapPin, Calendar, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { BottomNav } from "@/components/bottom-nav"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useAuth } from "@/components/auth/auth-context"
 
 export default function ProfilePage() {
-  // Mock user data
-  const user = {
-    name: "Rahul Sharma",
-    email: "rahul.sharma@example.com",
+  const { user, logout } = useAuth()
+  const router = useRouter()
+  const [isEditing, setIsEditing] = useState(false)
+  const [profileData, setProfileData] = useState({
+    name: user?.name || "Guest User",
+    email: user?.email || "guest@example.com",
     phone: "+91 98765 43210",
-    memberSince: "July 2023",
-    profileImage: "/diverse-group-city.png",
+    address: "123 Main Street, Kothrud, Pune",
+  })
+
+  const handleSignOut = () => {
+    logout()
+    router.push("/")
   }
 
-  const menuItems = [
-    {
-      icon: <User className="w-5 h-5 text-rose-600" />,
-      label: "Personal Information",
-      href: "/profile/personal-info",
-    },
-    {
-      icon: <Users className="w-5 h-5 text-rose-600" />,
-      label: "Family Members",
-      href: "/profile/family-members",
-    },
-    {
-      icon: <Heart className="w-5 h-5 text-rose-600" />,
-      label: "Favorite Salons",
-      href: "/profile/favorites",
-    },
-    {
-      icon: <CreditCard className="w-5 h-5 text-rose-600" />,
-      label: "Payment Methods",
-      href: "/profile/payment-methods",
-    },
-    {
-      icon: <Bell className="w-5 h-5 text-rose-600" />,
-      label: "Notification Preferences",
-      href: "/profile/notifications",
-    },
-    {
-      icon: <Gift className="w-5 h-5 text-rose-600" />,
-      label: "Referrals & Rewards",
-      href: "/profile/rewards",
-    },
-    {
-      icon: <Star className="w-5 h-5 text-rose-600" />,
-      label: "My Reviews",
-      href: "/profile/reviews",
-    },
-    {
-      icon: <Shield className="w-5 h-5 text-rose-600" />,
-      label: "Privacy & Security",
-      href: "/profile/privacy",
-    },
-    {
-      icon: <HelpCircle className="w-5 h-5 text-rose-600" />,
-      label: "Help & Support",
-      href: "/profile/support",
-    },
-    {
-      icon: <Settings className="w-5 h-5 text-rose-600" />,
-      label: "Settings",
-      href: "/profile/settings",
-    },
-  ]
+  if (!user) {
+    router.push("/login")
+    return null
+  }
+
+  const handleSaveProfile = () => {
+    // In a real app, this would update the profile in the database
+    setIsEditing(false)
+  }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-white shadow-sm">
-        <div className="container flex items-center justify-center h-16 px-4">
-          <h1 className="text-xl font-bold text-rose-600">My Profile</h1>
-        </div>
-      </header>
-
-      <main className="flex-1">
-        {/* User Profile Card */}
-        <div className="container px-4 py-6">
-          <div className="bg-white rounded-lg shadow-sm p-4">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 mr-4">
-                <img
-                  src={user.profileImage || "/placeholder.svg"}
-                  alt={user.name}
-                  className="w-16 h-16 rounded-full object-cover border-2 border-rose-100"
-                />
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold">{user.name}</h2>
-                <p className="text-sm text-gray-500">{user.phone}</p>
-                <p className="text-xs text-gray-400 mt-1">Member since {user.memberSince}</p>
-              </div>
-            </div>
-            <Link href="/profile/personal-info">
-              <Button variant="outline" className="w-full mt-4 border-rose-200 text-rose-600 hover:bg-rose-50">
-                Edit Profile
-              </Button>
-            </Link>
+    <div className="container max-w-md mx-auto px-4 py-8">
+      <Card>
+        <CardHeader className="text-center">
+          <div className="flex justify-center mb-4">
+            <Avatar className="h-24 w-24">
+              <AvatarImage src="/placeholder.svg?height=96&width=96&query=user" alt={profileData.name} />
+              <AvatarFallback>
+                {profileData.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
+              </AvatarFallback>
+            </Avatar>
           </div>
-        </div>
-
-        {/* Menu Items */}
-        <div className="container px-4 pb-6">
-          <div className="bg-white rounded-lg shadow-sm">
-            {menuItems.map((item, index) => (
-              <div key={index}>
-                <Link href={item.href}>
-                  <div className="flex items-center justify-between p-4 hover:bg-gray-50">
-                    <div className="flex items-center">
-                      {item.icon}
-                      <span className="ml-3 text-gray-700">{item.label}</span>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-gray-400" />
+          <CardTitle>{profileData.name}</CardTitle>
+          <CardDescription>Member since April 2023</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="profile">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="profile">Profile</TabsTrigger>
+              <TabsTrigger value="preferences">Preferences</TabsTrigger>
+            </TabsList>
+            <TabsContent value="profile" className="space-y-4 pt-4">
+              {isEditing ? (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                      id="name"
+                      value={profileData.name}
+                      onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                    />
                   </div>
-                </Link>
-                {index < menuItems.length - 1 && <Separator />}
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={profileData.email}
+                      onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input
+                      id="phone"
+                      value={profileData.phone}
+                      onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="address">Address</Label>
+                    <Input
+                      id="address"
+                      value={profileData.address}
+                      onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center">
+                    <User className="h-5 w-5 text-gray-500 mr-3" />
+                    <span>{profileData.name}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Mail className="h-5 w-5 text-gray-500 mr-3" />
+                    <span>{profileData.email}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Phone className="h-5 w-5 text-gray-500 mr-3" />
+                    <span>{profileData.phone}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <MapPin className="h-5 w-5 text-gray-500 mr-3" />
+                    <span>{profileData.address}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Calendar className="h-5 w-5 text-gray-500 mr-3" />
+                    <span>12 Bookings</span>
+                  </div>
+                </div>
+              )}
+            </TabsContent>
+            <TabsContent value="preferences" className="space-y-4 pt-4">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium">Email Notifications</h4>
+                    <p className="text-sm text-gray-500">Receive booking confirmations and reminders</p>
+                  </div>
+                  <input type="checkbox" className="toggle" defaultChecked />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium">SMS Notifications</h4>
+                    <p className="text-sm text-gray-500">Receive booking confirmations and reminders via SMS</p>
+                  </div>
+                  <input type="checkbox" className="toggle" defaultChecked />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium">Marketing Communications</h4>
+                    <p className="text-sm text-gray-500">Receive offers and promotions</p>
+                  </div>
+                  <input type="checkbox" className="toggle" />
+                </div>
               </div>
-            ))}
-          </div>
-
-          <Button variant="ghost" className="w-full mt-6 text-red-600 hover:bg-red-50 hover:text-red-700">
-            <LogOut className="w-5 h-5 mr-2" />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+        <CardFooter className="flex flex-col gap-2">
+          {isEditing ? (
+            <div className="flex gap-2 w-full">
+              <Button variant="outline" className="flex-1" onClick={() => setIsEditing(false)}>
+                Cancel
+              </Button>
+              <Button className="flex-1 bg-rose-600 hover:bg-rose-700" onClick={handleSaveProfile}>
+                Save Changes
+              </Button>
+            </div>
+          ) : (
+            <Button className="w-full" onClick={() => setIsEditing(true)}>
+              Edit Profile
+            </Button>
+          )}
+          <Button variant="outline" className="w-full text-red-600" onClick={handleSignOut}>
+            <LogOut className="h-4 w-4 mr-2" />
             Sign Out
           </Button>
-        </div>
-      </main>
-
-      {/* Bottom Navigation */}
-      <BottomNav active="profile" />
+        </CardFooter>
+      </Card>
     </div>
   )
 }
