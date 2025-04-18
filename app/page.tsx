@@ -8,6 +8,7 @@ import { CategoryPill } from "@/components/category-pill"
 import { PromotionBanner } from "@/components/promotion-banner"
 import { BottomNav } from "@/components/bottom-nav"
 import { TrimlyLogo } from "@/components/trimly-logo"
+import { QueueInfoTooltip } from "@/components/queue-info-tooltip"
 
 export default function HomePage() {
   return (
@@ -188,7 +189,10 @@ export default function HomePage() {
               <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-none">
                 <CardContent className="p-4 flex flex-col items-center text-center">
                   <Clock className="h-8 w-8 text-purple-600 mb-2" />
-                  <h3 className="font-medium">Join Queue</h3>
+                  <div className="flex items-center">
+                    <h3 className="font-medium">Join Queue</h3>
+                    <QueueInfoTooltip />
+                  </div>
                   <p className="text-xs text-muted-foreground mt-1">Get in line now</p>
                 </CardContent>
               </Card>

@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, MapPin, Store, CheckCircle, ChevronRight } from "lucide-react"
@@ -19,9 +19,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { useAuth } from "@/components/auth/auth-context"
 
 export default function BusinessRegistrationPage() {
   const router = useRouter()
+  const { user } = useAuth()
   const [step, setStep] = useState<"phone" | "otp" | "location" | "success">("phone")
   const [phoneNumber, setPhoneNumber] = useState("")
   const [otp, setOtp] = useState(["", "", "", "", "", ""])
@@ -35,8 +37,28 @@ export default function BusinessRegistrationPage() {
     pincode: "",
   })
 
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && user.role === "business") {
+      router.push("/business/dashboard")
+    }
+  }, [user, router])
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, "") // Remove non-digits
+    if (value.length <= 10) {
+      setPhoneNumber(value)
+    }
+  }
+
   const handlePhoneSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (phoneNumber.length !== 10) {
+      alert("Please enter a valid 10-digit phone number")
+      return
+    }
+
     setIsLoading(true)
 
     // Simulate API call to send OTP
@@ -121,11 +143,12 @@ export default function BusinessRegistrationPage() {
               <Input
                 id="phone"
                 type="tel"
-                placeholder="98765 43210"
+                placeholder="10-digit number"
                 value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
+                onChange={handlePhoneChange}
                 className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                 required
+                maxLength={10}
               />
             </div>
           </div>
@@ -144,7 +167,7 @@ export default function BusinessRegistrationPage() {
           <Button
             type="submit"
             className="w-full bg-rose-600 hover:bg-rose-700"
-            disabled={isLoading || !phoneNumber || !businessName}
+            disabled={isLoading || !phoneNumber || phoneNumber.length < 10 || !businessName}
           >
             {isLoading ? "Sending OTP..." : "Get OTP"}
           </Button>

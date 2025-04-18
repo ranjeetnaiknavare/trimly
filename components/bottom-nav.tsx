@@ -17,6 +17,20 @@ import {
 export function BottomNav() {
   const pathname = usePathname()
   const { user, logout } = useAuth()
+  const active =
+    pathname === "/"
+      ? "home"
+      : pathname === "/explore"
+        ? "explore"
+        : pathname === "/profile"
+          ? "profile"
+          : pathname === "/profile?tab=bookings"
+            ? "bookings"
+            : pathname === "/coupons"
+              ? "coupons"
+              : pathname === "/login"
+                ? "login"
+                : null
 
   // Don't show bottom nav on business pages
   if (pathname?.startsWith("/business")) {
@@ -29,7 +43,7 @@ export function BottomNav() {
         <Link
           href="/"
           className={`flex flex-col items-center justify-center w-full h-full ${
-            pathname === "/" ? "text-rose-600" : "text-gray-500"
+            active === "home" ? "text-rose-600" : "text-gray-500"
           }`}
         >
           <Home className="h-5 w-5" />
@@ -38,16 +52,16 @@ export function BottomNav() {
         <Link
           href="/explore"
           className={`flex flex-col items-center justify-center w-full h-full ${
-            pathname === "/explore" ? "text-rose-600" : "text-gray-500"
+            active === "explore" ? "text-rose-600" : "text-gray-500"
           }`}
         >
           <Search className="h-5 w-5" />
           <span className="text-xs mt-1">Explore</span>
         </Link>
         <Link
-          href="/bookings"
+          href="/profile?tab=bookings"
           className={`flex flex-col items-center justify-center w-full h-full ${
-            pathname === "/bookings" ? "text-rose-600" : "text-gray-500"
+            active === "bookings" ? "text-rose-600" : "text-gray-500"
           }`}
         >
           <Calendar className="h-5 w-5" />
@@ -56,7 +70,7 @@ export function BottomNav() {
         <Link
           href="/coupons"
           className={`flex flex-col items-center justify-center w-full h-full ${
-            pathname === "/coupons" ? "text-rose-600" : "text-gray-500"
+            active === "coupons" ? "text-rose-600" : "text-gray-500"
           }`}
         >
           <Tag className="h-5 w-5" />
@@ -68,7 +82,7 @@ export function BottomNav() {
               <Button
                 variant="ghost"
                 className={`flex flex-col items-center justify-center w-full h-full rounded-none ${
-                  pathname === "/profile" ? "text-rose-600" : "text-gray-500"
+                  active === "profile" ? "text-rose-600" : "text-gray-500"
                 }`}
               >
                 <User className="h-5 w-5" />
@@ -82,7 +96,7 @@ export function BottomNav() {
                 <Link href="/profile">Profile</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/bookings">My Bookings</Link>
+                <Link href="/profile?tab=bookings">My Bookings</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/notifications">Notifications</Link>
@@ -98,7 +112,7 @@ export function BottomNav() {
           <Link
             href="/login"
             className={`flex flex-col items-center justify-center w-full h-full ${
-              pathname === "/login" ? "text-rose-600" : "text-gray-500"
+              active === "login" ? "text-rose-600" : "text-gray-500"
             }`}
           >
             <User className="h-5 w-5" />

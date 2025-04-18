@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Eye, EyeOff } from "lucide-react"
@@ -30,22 +30,54 @@ export default function BusinessLoginPage() {
   const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState("")
 
-  const { login } = useAuth()
+  const { login, loginWithPhone, user } = useAuth()
   const router = useRouter()
 
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && user.role === "business") {
+      router.push("/business/dashboard")
+    }
+  }, [user, router])
+
+  const validatePhoneNumber = (phone: string): boolean => {
+    // Check if phone is exactly 10 digits
+    return /^\d{10}$/.test(phone)
+  }
+
   const handleSendOTP = () => {
+    if (!validatePhoneNumber(phone)) {
+      setError("Please enter a valid 10-digit phone number")
+      return
+    }
+
+    setError("")
     // In a real app, this would send an OTP to the phone number
     setOtpSent(true)
     // Mock OTP for demo
     console.log("OTP sent to", phone)
   }
 
-  const handleOTPLogin = (e: React.FormEvent) => {
+  const handleOTPLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    // In a real app, this would verify the OTP and log in
-    console.log("OTP login attempt with:", { phone, otp, rememberMe })
-    // For demo purposes, we'll just redirect to dashboard
-    router.push("/business/dashboard")
+    setError("")
+
+    if (!phone || !otp) {
+      setError("Please fill in all fields")
+      return
+    }
+
+    if (!validatePhoneNumber(phone)) {
+      setError("Please enter a valid 10-digit phone number")
+      return
+    }
+
+    // In a real app, this would verify the OTP with the backend
+    const success = await loginWithPhone(phone, "business")
+
+    if (!success) {
+      setError("Invalid phone number or OTP")
+    }
   }
 
   const handlePasswordLogin = async (e: React.FormEvent) => {
@@ -59,10 +91,15 @@ export default function BusinessLoginPage() {
 
     const success = await login(email, password, "business")
 
-    if (success) {
-      router.push("/business/dashboard")
-    } else {
+    if (!success) {
       setError("Invalid email or password")
+    }
+  }
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, "") // Remove non-digits
+    if (value.length <= 10) {
+      setPhone(value)
     }
   }
 
@@ -102,19 +139,23 @@ export default function BusinessLoginPage() {
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number</Label>
                     <div className="flex gap-2">
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="+91 98765 43210"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        required
-                        className="flex-1"
-                      />
+                      <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-rose-500 focus-within:border-rose-500 flex-1">
+                        <div className="px-3 py-2 bg-gray-50 text-gray-500 border-r rounded-l-md">+91</div>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          placeholder="10-digit number"
+                          value={phone}
+                          onChange={handlePhoneChange}
+                          required
+                          className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                          maxLength={10}
+                        />
+                      </div>
                       <Button
                         type="button"
                         onClick={handleSendOTP}
-                        disabled={!phone || otpSent}
+                        disabled={!phone || phone.length < 10 || otpSent}
                         variant="outline"
                         className="whitespace-nowrap"
                       >

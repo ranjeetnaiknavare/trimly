@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { TrimlyLogo } from "@/components/trimly-logo"
@@ -36,10 +36,28 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
 
-  const { login, register } = useAuth()
+  const { login, loginWithPhone, register, user } = useAuth()
   const router = useRouter()
 
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && user.role === "customer") {
+      router.push("/")
+    }
+  }, [user, router])
+
+  const validatePhoneNumber = (phone: string): boolean => {
+    // Check if phone is exactly 10 digits
+    return /^\d{10}$/.test(phone)
+  }
+
   const handleSendOTP = () => {
+    if (!validatePhoneNumber(phone)) {
+      setError("Please enter a valid 10-digit phone number")
+      return
+    }
+
+    setError("")
     // In a real app, this would send an OTP to the phone number
     setOtpSent(true)
     // Mock OTP for demo
@@ -47,13 +65,19 @@ export default function LoginPage() {
   }
 
   const handleSendRegOTP = () => {
+    if (!validatePhoneNumber(regPhone)) {
+      setError("Please enter a valid 10-digit phone number")
+      return
+    }
+
+    setError("")
     // In a real app, this would send an OTP to the phone number
     setRegOtpSent(true)
     // Mock OTP for demo
     console.log("Registration OTP sent to", regPhone)
   }
 
-  const handlePhoneLogin = (e: React.FormEvent) => {
+  const handlePhoneLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
 
@@ -62,10 +86,18 @@ export default function LoginPage() {
       return
     }
 
+    if (!validatePhoneNumber(phone)) {
+      setError("Please enter a valid 10-digit phone number")
+      return
+    }
+
     // In a real app, this would verify the OTP with the backend
     // For demo purposes, we'll just log in the user
-    console.log("Phone login with:", { phone, otp })
-    router.push("/")
+    const success = await loginWithPhone(phone, "customer")
+
+    if (!success) {
+      setError("Invalid phone number or OTP")
+    }
   }
 
   const handleEmailLogin = async (e: React.FormEvent) => {
@@ -79,9 +111,7 @@ export default function LoginPage() {
 
     const success = await login(email, password, "customer")
 
-    if (success) {
-      router.push("/")
-    } else {
+    if (!success) {
       setError("Invalid email or password")
     }
   }
@@ -95,9 +125,14 @@ export default function LoginPage() {
       return
     }
 
+    if (!validatePhoneNumber(regPhone)) {
+      setError("Please enter a valid 10-digit phone number")
+      return
+    }
+
     // In a real app, this would verify the OTP and register the user
     // For demo purposes, we'll just register the user with the provided details
-    const success = await register(name, regEmail || `${regPhone}@example.com`, "password123", "customer")
+    const success = await register(name, regPhone, "customer", regEmail || undefined)
 
     if (success) {
       setSuccess("Account created successfully! You can now log in.")
@@ -108,6 +143,20 @@ export default function LoginPage() {
       setRegOtpSent(false)
     } else {
       setError("Phone number already in use")
+    }
+  }
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, "") // Remove non-digits
+    if (value.length <= 10) {
+      setPhone(value)
+    }
+  }
+
+  const handleRegPhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, "") // Remove non-digits
+    if (value.length <= 10) {
+      setRegPhone(value)
     }
   }
 
@@ -145,19 +194,23 @@ export default function LoginPage() {
                     <div className="space-y-2">
                       <Label htmlFor="phone">Phone Number</Label>
                       <div className="flex gap-2">
-                        <Input
-                          id="phone"
-                          type="tel"
-                          placeholder="+91 98765 43210"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          required
-                          className="flex-1"
-                        />
+                        <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-rose-500 focus-within:border-rose-500 flex-1">
+                          <div className="px-3 py-2 bg-gray-50 text-gray-500 border-r rounded-l-md">+91</div>
+                          <Input
+                            id="phone"
+                            type="tel"
+                            placeholder="10-digit number"
+                            value={phone}
+                            onChange={handlePhoneChange}
+                            required
+                            className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                            maxLength={10}
+                          />
+                        </div>
                         <Button
                           type="button"
                           onClick={handleSendOTP}
-                          disabled={!phone || otpSent}
+                          disabled={!phone || phone.length < 10 || otpSent}
                           variant="outline"
                           className="whitespace-nowrap"
                         >
@@ -275,19 +328,23 @@ export default function LoginPage() {
                     Phone Number <span className="text-red-500">*</span>
                   </Label>
                   <div className="flex gap-2">
-                    <Input
-                      id="reg-phone"
-                      type="tel"
-                      placeholder="+91 98765 43210"
-                      value={regPhone}
-                      onChange={(e) => setRegPhone(e.target.value)}
-                      required
-                      className="flex-1"
-                    />
+                    <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-rose-500 focus-within:border-rose-500 flex-1">
+                      <div className="px-3 py-2 bg-gray-50 text-gray-500 border-r rounded-l-md">+91</div>
+                      <Input
+                        id="reg-phone"
+                        type="tel"
+                        placeholder="10-digit number"
+                        value={regPhone}
+                        onChange={handleRegPhoneChange}
+                        required
+                        className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                        maxLength={10}
+                      />
+                    </div>
                     <Button
                       type="button"
                       onClick={handleSendRegOTP}
-                      disabled={!regPhone || regOtpSent}
+                      disabled={!regPhone || regPhone.length < 10 || regOtpSent}
                       variant="outline"
                       className="whitespace-nowrap"
                     >

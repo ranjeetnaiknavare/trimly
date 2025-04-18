@@ -20,6 +20,7 @@ import {
   CreditCard,
   Bell,
   Tag,
+  UserCog,
 } from "lucide-react"
 import { TrimlyLogo } from "@/components/trimly-logo"
 import { Button } from "@/components/ui/button"
@@ -60,6 +61,11 @@ const navItems: NavItem[] = [
     title: "Customers",
     href: "/business/customers",
     icon: <Users className="h-5 w-5" />,
+  },
+  {
+    title: "Staff",
+    href: "/business/staff",
+    icon: <UserCog className="h-5 w-5" />,
   },
   {
     title: "Services",

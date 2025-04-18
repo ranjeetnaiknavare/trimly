@@ -1,4 +1,4 @@
-import { Clock, Calendar, Users, MapPin, Tag } from "lucide-react"
+import { Clock, Calendar, Users, MapPin, Tag, Heart } from "lucide-react"
 
 interface BookingSummaryProps {
   salon: {
@@ -31,6 +31,7 @@ interface BookingSummaryProps {
     discount: number
     type: "percentage" | "fixed"
   } | null
+  tipAmount?: number
 }
 
 export function BookingSummary({
@@ -43,6 +44,7 @@ export function BookingSummary({
   totalAmount,
   totalDuration,
   appliedCoupon = null,
+  tipAmount = 0,
 }: BookingSummaryProps) {
   // Get service names and details
   const serviceDetails = selectedServices
@@ -148,9 +150,19 @@ export function BookingSummary({
               </div>
             )}
 
+            {tipAmount > 0 && (
+              <div className="flex justify-between text-sm text-rose-600 items-center">
+                <div className="flex items-center">
+                  <Heart className="h-3 w-3 mr-1" />
+                  <p>Tip</p>
+                </div>
+                <p>₹{tipAmount}</p>
+              </div>
+            )}
+
             <div className="flex justify-between font-medium mt-2">
               <p>Total</p>
-              <p>₹{totalAmount}</p>
+              <p>₹{totalAmount + (tipAmount || 0)}</p>
             </div>
             <p className="text-xs text-gray-500 mt-1">Total duration: {totalDuration} min</p>
           </div>

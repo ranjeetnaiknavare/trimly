@@ -11,6 +11,12 @@ export const metadata: Metadata = {
   title: "Trimly - Salon Booking & Management",
   description: "Book appointments at your favorite salon or manage your salon business with Trimly",
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "32x32" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+  },
     generator: 'v0.dev'
 }
 

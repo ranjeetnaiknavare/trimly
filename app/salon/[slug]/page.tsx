@@ -1,5 +1,7 @@
+"use client"
+
 import Link from "next/link"
-import { ArrowLeft, Star, MapPin, Clock, Phone, Calendar, MessageSquare, Share2, Heart, ImageIcon } from "lucide-react"
+import { ArrowLeft, Star, MapPin, Clock, Phone, Calendar, MessageSquare, ImageIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
@@ -7,6 +9,9 @@ import { ServiceItem } from "@/components/service-item"
 import { ReviewCard } from "@/components/review-card"
 import { SalonGallery } from "@/components/salon-gallery"
 import { SalonHours } from "@/components/salon-hours"
+import { SalonActions } from "@/components/salon-actions"
+import { QueueInfoTooltip } from "@/components/queue-info-tooltip"
+import { InteractionTracker } from "@/components/analytics/interaction-tracker"
 
 // This would typically come from a database
 const getSalonData = (slug: string) => {
@@ -109,11 +114,29 @@ const getSalonData = (slug: string) => {
   }
 }
 
+// Function to track phone call interactions
+const trackPhoneCall = (phoneNumber: string, salonId: string, salonName: string) => {
+  // In a real implementation, this would make an API call to record the interaction
+  fetch("/api/analytics/track-call", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      salonId,
+      salonName,
+      phoneNumber,
+      timestamp: new Date().toISOString(),
+    }),
+  }).catch((err) => console.error("Failed to track call:", err))
+}
+
 export default function SalonDetailPage({ params }: { params: { slug: string } }) {
   const salon = getSalonData(params.slug)
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
+      {/* Add the interaction tracker */}
+      <InteractionTracker salonId={salon.id} salonName={salon.name} />
+
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white shadow-sm">
         <div className="container flex items-center h-16 px-4">
@@ -130,23 +153,18 @@ export default function SalonDetailPage({ params }: { params: { slug: string } }
         {/* Salon Hero Image */}
         <div className="relative h-48 bg-gray-200">
           <img src={salon.mainImage || "/placeholder.svg"} alt={salon.name} className="w-full h-full object-cover" />
-          <div className="absolute top-4 right-4 flex gap-2">
-            <Button variant="secondary" size="icon" className="rounded-full bg-white/80 backdrop-blur-sm">
-              <Share2 className="w-4 h-4" />
-            </Button>
-            <Button variant="secondary" size="icon" className="rounded-full bg-white/80 backdrop-blur-sm">
-              <Heart className="w-4 h-4" fill={salon.isFavorite ? "currentColor" : "none"} />
-            </Button>
+          <div className="absolute top-4 right-4">
+            <SalonActions salonId={salon.id} salonName={salon.name} initialFavorite={salon.isFavorite} />
           </div>
         </div>
 
         {/* Salon Info */}
         <div className="container px-4 py-4">
-          <div className="flex items-start justify-between">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between">
             <div>
-              <div className="flex items-center">
+              <div className="flex items-center flex-wrap gap-2">
                 <h2 className="text-xl font-bold">{salon.name}</h2>
-                <Badge variant="outline" className="ml-2 bg-rose-50 text-rose-600 border-rose-200">
+                <Badge variant="outline" className="bg-rose-50 text-rose-600 border-rose-200">
                   {salon.category}
                 </Badge>
               </div>
@@ -154,23 +172,28 @@ export default function SalonDetailPage({ params }: { params: { slug: string } }
                 <MapPin className="w-3 h-3 mr-1" />
                 <span>{salon.location}</span>
               </div>
-              <div className="flex items-center mt-2">
+              <div className="flex items-center mt-2 flex-wrap gap-2">
                 <div className="flex items-center">
                   <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                   <span className="ml-1 text-sm font-medium">{salon.rating}</span>
                   <span className="ml-1 text-xs text-gray-500">({salon.reviewCount} reviews)</span>
                 </div>
-                <div className="flex items-center ml-4">
+                <div className="flex items-center ml-0 md:ml-4">
                   <Clock className="w-4 h-4 text-gray-400" />
                   <span className="ml-1 text-sm">{salon.waitTime} wait</span>
                 </div>
               </div>
             </div>
-            <div className="flex flex-col items-end">
+            <div className="flex flex-col items-start md:items-end mt-2 md:mt-0">
               <span className={`text-sm font-medium ${salon.isOpen ? "text-green-600" : "text-red-600"}`}>
                 {salon.isOpen ? "Open Now" : "Closed"}
               </span>
-              <a href={`tel:${salon.phone}`} className="flex items-center mt-1 text-sm text-blue-600">
+              <a
+                href={`tel:${salon.phone}`}
+                className="flex items-center mt-1 text-sm text-blue-600"
+                onClick={() => trackPhoneCall(salon.phone, salon.id, salon.name)}
+                data-phone-link
+              >
                 <Phone className="w-3 h-3 mr-1" />
                 <span>{salon.phone}</span>
               </a>
@@ -185,6 +208,7 @@ export default function SalonDetailPage({ params }: { params: { slug: string } }
               <Button className="w-full bg-rose-600 hover:bg-rose-700">
                 <Clock className="w-4 h-4 mr-2" />
                 Join Queue
+                <QueueInfoTooltip size="sm" />
               </Button>
             </Link>
             <Link href={`/salon/${params.slug}/book?type=appointment`} className="flex-1">
@@ -285,7 +309,10 @@ export default function SalonDetailPage({ params }: { params: { slug: string } }
       <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4">
         <div className="container flex gap-2">
           <Link href={`/salon/${params.slug}/book?type=queue`} className="flex-1">
-            <Button className="w-full bg-rose-600 hover:bg-rose-700">Join Queue</Button>
+            <Button className="w-full bg-rose-600 hover:bg-rose-700">
+              Join Queue
+              <QueueInfoTooltip size="sm" />
+            </Button>
           </Link>
           <Link href={`/salon/${params.slug}/book?type=appointment`} className="flex-1">
             <Button variant="outline" className="w-full border-rose-200 text-rose-600 hover:bg-rose-50">
