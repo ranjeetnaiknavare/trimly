@@ -270,7 +270,7 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
         </div>
       </header>
 
-      <main className="flex-1 container px-4 py-6 pb-24">
+      <main className="flex-1 container px-4 py-6">
         {/* Step 1: Select Services */}
         {step === 1 && (
           <div className="space-y-6">
@@ -422,36 +422,6 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
           </div>
         )}
       </main>
-
-      {/* Bottom CTA - Keep this for accessibility but make it less obtrusive */}
-      <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 shadow-lg">
-        <div className="container">
-          {step < 4 ? (
-            <Button
-              className="w-full bg-rose-600 hover:bg-rose-700"
-              disabled={
-                (step === 1 && !canProceedToStep2) ||
-                (step === 2 && !canProceedToStep3) ||
-                (step === 3 && !canProceedToStep4)
-              }
-              onClick={() => setStep(step + 1)}
-            >
-              Continue to{" "}
-              {step === 1
-                ? bookingType === "queue"
-                  ? "Queue Information"
-                  : "Select Date & Time"
-                : step === 2
-                  ? "Select People"
-                  : "Review & Confirm"}
-            </Button>
-          ) : (
-            <Button className="w-full bg-rose-600 hover:bg-rose-700" onClick={handleBookingSubmit}>
-              Confirm Booking
-            </Button>
-          )}
-        </div>
-      </div>
     </div>
   )
 }

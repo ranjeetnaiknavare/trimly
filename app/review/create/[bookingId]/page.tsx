@@ -59,6 +59,7 @@ export default function CreateReviewPage({ params }: { params: { bookingId: stri
     // Simulate API call
     setTimeout(() => {
       setIsSubmitting(false)
+      // Redirect to the reviews tab in the profile page
       router.push("/profile?tab=reviews")
     }, 1000)
   }

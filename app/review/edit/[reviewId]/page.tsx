@@ -57,6 +57,7 @@ export default function EditReviewPage({ params }: { params: { reviewId: string 
     // Simulate API call
     setTimeout(() => {
       setIsSubmitting(false)
+      // Redirect to the reviews tab in the profile page
       router.push("/profile?tab=reviews")
     }, 1000)
   }

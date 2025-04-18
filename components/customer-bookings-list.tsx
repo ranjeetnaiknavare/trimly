@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Calendar, Clock, MapPin, CheckCircle, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
+import { useSearchParams } from "next/navigation"
 
 // Mock data for bookings
 const upcomingBookings = [
@@ -83,6 +84,16 @@ export function CustomerBookingsList() {
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
   const [bookingToCancel, setBookingToCancel] = useState<string | null>(null)
   const [cancelReason, setCancelReason] = useState("")
+
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    // Check if we should show the past tab based on URL parameter
+    const writeParam = searchParams?.get("write")
+    if (writeParam === "true") {
+      setActiveTab("past")
+    }
+  }, [searchParams])
 
   const handleCancelBooking = () => {
     // In a real app, this would send a request to cancel the booking
@@ -229,7 +240,7 @@ export function CustomerBookingsList() {
                         </div>
                         <div className="flex justify-end mt-3">
                           {booking.status === "completed" && (
-                            <Link href={`/review/${booking.id}`}>
+                            <Link href={`/review/create/${booking.id}`}>
                               <Button size="sm" variant="outline" className="text-rose-600">
                                 Write Review
                               </Button>

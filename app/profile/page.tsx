@@ -1,8 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { User, Mail, Phone, MapPin, Calendar, LogOut, Heart, Star, Users } from "lucide-react"
+import type React from "react"
+
+import { useState, useEffect, useRef } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { User, Mail, Phone, MapPin, Calendar, LogOut, Heart, Star, Users, Camera, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -28,6 +30,11 @@ export default function ProfilePage() {
     address: "123 Main Street, Kothrud, Pune",
   })
   const [isMounted, setIsMounted] = useState(false)
+  const [profilePhoto, setProfilePhoto] = useState<string | null>("/vibrant-street-market.png")
+  const [isPhotoMenuOpen, setIsPhotoMenuOpen] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const searchParams = useSearchParams()
+  const activeTab = searchParams?.get("tab") || "profile"
 
   // Only access browser APIs after component is mounted
   useEffect(() => {
@@ -41,14 +48,49 @@ export default function ProfilePage() {
 
   // Only check for user after component is mounted to avoid SSR issues
   useEffect(() => {
-    if (isMounted && !user) {
-      router.push("/login")
+    if (isMounted) {
+      if (!user) {
+        router.push("/login")
+      } else {
+        // Set the active tab based on URL parameter
+        const tab = searchParams?.get("tab")
+        if (tab) {
+          // The tab will be set via the Tabs defaultValue
+        }
+      }
     }
-  }, [isMounted, user, router])
+  }, [isMounted, user, router, searchParams])
 
   const handleSaveProfile = () => {
     // In a real app, this would update the profile in the database
     setIsEditing(false)
+  }
+
+  const handlePhotoClick = () => {
+    setIsPhotoMenuOpen(!isPhotoMenuOpen)
+  }
+
+  const handleUploadClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        setProfilePhoto(event.target?.result as string)
+        setIsPhotoMenuOpen(false)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleRemovePhoto = () => {
+    setProfilePhoto(null)
+    setIsPhotoMenuOpen(false)
   }
 
   // Don't render anything during SSR or if not authenticated
@@ -67,23 +109,51 @@ export default function ProfilePage() {
       <main className="container max-w-md mx-auto px-4 py-6 flex-1">
         <Card className="mb-6">
           <CardHeader className="text-center">
-            <div className="flex justify-center mb-4">
-              <Avatar className="h-24 w-24">
-                <AvatarImage src="/vibrant-street-market.png" alt={profileData.name} />
-                <AvatarFallback>
-                  {profileData.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
-                </AvatarFallback>
+            <div className="flex justify-center mb-4 relative">
+              <Avatar className="h-24 w-24 cursor-pointer" onClick={handlePhotoClick}>
+                {profilePhoto ? (
+                  <AvatarImage src={profilePhoto || "/placeholder.svg"} alt={profileData.name} />
+                ) : (
+                  <AvatarFallback>
+                    {profileData.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
+                  </AvatarFallback>
+                )}
+                <div className="absolute bottom-0 right-0 bg-rose-600 rounded-full p-1 cursor-pointer">
+                  <Camera className="h-4 w-4 text-white" />
+                </div>
               </Avatar>
+
+              {isPhotoMenuOpen && (
+                <div className="absolute top-24 mt-2 bg-white rounded-md shadow-lg z-10 w-48">
+                  <div className="py-1">
+                    <button
+                      onClick={handleUploadClick}
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                    >
+                      <Camera className="h-4 w-4 mr-2" />
+                      Upload Photo
+                    </button>
+                    <button
+                      onClick={handleRemovePhoto}
+                      className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Remove Photo
+                    </button>
+                  </div>
+                </div>
+              )}
+              <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
             </div>
             <CardTitle>{profileData.name}</CardTitle>
             <CardDescription>Member since April 2023</CardDescription>
           </CardHeader>
         </Card>
 
-        <Tabs defaultValue="profile" className="space-y-4">
+        <Tabs defaultValue={activeTab} className="space-y-4">
           <TabsList className="grid grid-cols-5">
             <TabsTrigger value="profile" className="text-xs">
               <User className="h-4 w-4 mr-1 md:mr-2" />

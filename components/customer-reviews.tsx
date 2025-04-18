@@ -65,7 +65,7 @@ export function CustomerReviews() {
           <p className="text-gray-500 mt-1 text-center">
             You haven't written any reviews yet. After your visit, you can share your experience to help others.
           </p>
-          <Link href="/bookings">
+          <Link href="/bookings?write=true">
             <Button className="mt-4 bg-rose-600 hover:bg-rose-700">View Bookings</Button>
           </Link>
         </CardContent>
@@ -132,6 +132,11 @@ export function CustomerReviews() {
                         <Trash2 className="h-3.5 w-3.5 mr-1" />
                         Delete
                       </Button>
+                      <Link href={`/review/create/${review.id}`}>
+                        <Button size="sm" variant="outline" className="text-rose-600">
+                          Write Review
+                        </Button>
+                      </Link>
                     </div>
                   </div>
                 </div>
