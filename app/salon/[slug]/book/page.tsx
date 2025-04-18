@@ -410,7 +410,7 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
 
               <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
                 <h3 className="font-medium mb-3">Add a Tip</h3>
-                <TipSelector baseAmount={finalAmount} selectedAmount={tipAmount} onChange={handleTipChange} />
+                <TipSelector selectedAmount={tipAmount} onChange={handleTipChange} baseAmount={finalAmount} />
               </div>
             </div>
 

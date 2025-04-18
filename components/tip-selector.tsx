@@ -9,13 +9,20 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 
 interface TipSelectorProps {
-  onSelectTip: (amount: number) => void
-  selectedTip: number
+  onSelectTip?: (amount: number) => void
+  onChange?: (amount: number) => void
+  selectedTip?: number
+  selectedAmount?: number
+  baseAmount?: number
 }
 
-export function TipSelector({ onSelectTip, selectedTip }: TipSelectorProps) {
+export function TipSelector({ onSelectTip, onChange, selectedTip, selectedAmount, baseAmount }: TipSelectorProps) {
   const [customTip, setCustomTip] = useState("")
   const [showCustomInput, setShowCustomInput] = useState(false)
+
+  // Use the appropriate prop or provide a fallback
+  const handleTipSelect = onSelectTip || onChange || ((amount: number) => {})
+  const tipAmount = selectedTip || selectedAmount || 0
 
   const predefinedTips = [
     { amount: 10, label: "₹10" },
@@ -31,19 +38,19 @@ export function TipSelector({ onSelectTip, selectedTip }: TipSelectorProps) {
   const handleCustomTipApply = () => {
     const amount = Number.parseInt(customTip, 10)
     if (!isNaN(amount) && amount > 0) {
-      onSelectTip(amount)
+      handleTipSelect(amount)
     }
   }
 
   const handlePredefinedTip = (amount: number) => {
-    onSelectTip(amount)
+    handleTipSelect(amount)
     setShowCustomInput(false)
   }
 
   const handleCustomTipClick = () => {
     setShowCustomInput(true)
-    if (selectedTip > 0 && !predefinedTips.some((tip) => tip.amount === selectedTip)) {
-      setCustomTip(selectedTip.toString())
+    if (tipAmount > 0 && !predefinedTips.some((tip) => tip.amount === tipAmount)) {
+      setCustomTip(tipAmount.toString())
     } else {
       setCustomTip("")
     }
@@ -64,8 +71,8 @@ export function TipSelector({ onSelectTip, selectedTip }: TipSelectorProps) {
           {predefinedTips.map((tip) => (
             <Button
               key={tip.amount}
-              variant={selectedTip === tip.amount ? "default" : "outline"}
-              className={selectedTip === tip.amount ? "bg-rose-600 hover:bg-rose-700" : ""}
+              variant={tipAmount === tip.amount ? "default" : "outline"}
+              className={tipAmount === tip.amount ? "bg-rose-600 hover:bg-rose-700" : ""}
               onClick={() => handlePredefinedTip(tip.amount)}
             >
               {tip.label}
