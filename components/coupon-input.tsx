@@ -1,129 +1,100 @@
 "use client"
 
 import { useState } from "react"
-import { Check, X, Tag } from "lucide-react"
+import { Check, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
-import { LocationBasedCoupons } from "@/components/location-based-coupons"
 
 interface CouponInputProps {
-  onApply: (code: string, discount: number) => void
-  onRemove: () => void
-  appliedCoupon: {
-    code: string
-    discount: number
-  } | null
-  salonLocation?: string
+  onApplyCoupon: (coupon: { code: string; discount: number; type: "percentage" | "fixed" }) => void
 }
 
-export function CouponInput({ onApply, onRemove, appliedCoupon, salonLocation = "Kothrud, Pune" }: CouponInputProps) {
+export function CouponInput({ onApplyCoupon }: CouponInputProps) {
   const [couponCode, setCouponCode] = useState("")
-  const [isValidating, setIsValidating] = useState(false)
-  const [error, setError] = useState("")
-  const [showLocationCoupons, setShowLocationCoupons] = useState(false)
+  const [isApplying, setIsApplying] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string
+    discount: number
+    type: "percentage" | "fixed"
+  } | null>(null)
 
-  const handleApplyCoupon = async () => {
+  const handleApplyCoupon = () => {
     if (!couponCode.trim()) {
       setError("Please enter a coupon code")
       return
     }
 
-    setIsValidating(true)
-    setError("")
+    setIsApplying(true)
+    setError(null)
 
     // Simulate API call to validate coupon
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // Mock validation logic
-    if (couponCode.toUpperCase() === "TRIMLY20") {
-      onApply(couponCode.toUpperCase(), 20)
-      setIsValidating(false)
-    } else if (couponCode.toUpperCase() === "WELCOME10") {
-      onApply(couponCode.toUpperCase(), 10)
-      setIsValidating(false)
-    } else if (couponCode.toUpperCase() === "KOTHRUD20" && salonLocation.includes("Kothrud")) {
-      onApply(couponCode.toUpperCase(), 20)
-      setIsValidating(false)
-    } else {
-      setError("Invalid or expired coupon code")
-      setIsValidating(false)
-    }
-  }
-
-  const handleLocationCoupon = (code: string) => {
-    setCouponCode(code)
-    setShowLocationCoupons(false)
-    // Auto-apply the selected coupon
     setTimeout(() => {
-      if (code === "KOTHRUD20") {
-        onApply(code, 20)
-      } else if (code === "KOTHRUDSPA15") {
-        onApply(code, 15)
+      // Mock coupon validation
+      if (couponCode.toLowerCase() === "welcome10") {
+        const coupon = { code: couponCode, discount: 10, type: "percentage" as const }
+        setAppliedCoupon(coupon)
+        onApplyCoupon(coupon)
+      } else if (couponCode.toLowerCase() === "flat100") {
+        const coupon = { code: couponCode, discount: 100, type: "fixed" as const }
+        setAppliedCoupon(coupon)
+        onApplyCoupon(coupon)
+      } else {
+        setError("Invalid or expired coupon code")
       }
-    }, 100)
+      setIsApplying(false)
+    }, 1000)
   }
 
-  if (appliedCoupon) {
-    return (
-      <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-md">
-        <div className="flex items-center">
-          <Check className="h-5 w-5 text-green-500 mr-2" />
-          <div>
-            <p className="font-medium text-green-700">{appliedCoupon.code}</p>
-            <p className="text-xs text-green-600">{appliedCoupon.discount}% discount applied</p>
-          </div>
-        </div>
-        <Button variant="ghost" size="sm" onClick={onRemove} className="h-8 text-gray-500 hover:text-red-500">
-          <X className="h-4 w-4" />
-        </Button>
-      </div>
-    )
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null)
+    setCouponCode("")
+    onApplyCoupon({ code: "", discount: 0, type: "fixed" })
   }
 
   return (
     <div>
-      <div className="flex gap-2 mb-2">
-        <div className="relative flex-1">
-          <Input
-            placeholder="Enter coupon code"
-            value={couponCode}
-            onChange={(e) => setCouponCode(e.target.value)}
-            className="pr-8"
-          />
-          {couponCode && (
-            <button
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              onClick={() => setCouponCode("")}
+      <h3 className="font-medium mb-3">Apply Coupon</h3>
+      {!appliedCoupon ? (
+        <div className="space-y-2">
+          <div className="flex space-x-2">
+            <Input
+              placeholder="Enter coupon code"
+              value={couponCode}
+              onChange={(e) => setCouponCode(e.target.value)}
+              className="flex-1"
+            />
+            <Button
+              onClick={handleApplyCoupon}
+              disabled={isApplying || !couponCode.trim()}
+              className={isApplying ? "opacity-70" : ""}
             >
-              <X className="h-4 w-4" />
-            </button>
-          )}
+              {isApplying ? "Applying..." : "Apply"}
+            </Button>
+          </div>
+          {error && <p className="text-sm text-red-500">{error}</p>}
+          <p className="text-xs text-gray-500">Try coupon codes: WELCOME10 for 10% off or FLAT100 for ₹100 off</p>
         </div>
-        <Button onClick={handleApplyCoupon} disabled={isValidating} className="whitespace-nowrap">
-          {isValidating ? "Validating..." : "Apply"}
-        </Button>
-      </div>
-
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
-
-      <Button
-        variant="ghost"
-        size="sm"
-        className="text-rose-600 p-0 h-auto flex items-center mt-2"
-        onClick={() => setShowLocationCoupons(!showLocationCoupons)}
-      >
-        <Tag className="h-4 w-4 mr-1" />
-        {showLocationCoupons ? "Hide location offers" : "See available offers for this location"}
-      </Button>
-
-      {showLocationCoupons && (
-        <Card className="mt-3">
-          <CardContent className="p-3">
-            <p className="text-sm font-medium mb-2">Available offers for {salonLocation}</p>
-            <LocationBasedCoupons currentLocation={salonLocation} />
-          </CardContent>
-        </Card>
+      ) : (
+        <div className="flex items-center justify-between p-2 bg-green-50 border border-green-200 rounded-md">
+          <div className="flex items-center">
+            <div className="bg-green-100 p-1 rounded-full">
+              <Check className="h-4 w-4 text-green-600" />
+            </div>
+            <div className="ml-2">
+              <p className="text-sm font-medium">{appliedCoupon.code}</p>
+              <p className="text-xs text-gray-600">
+                {appliedCoupon.type === "percentage"
+                  ? `${appliedCoupon.discount}% off`
+                  : `₹${appliedCoupon.discount} off`}
+              </p>
+            </div>
+          </div>
+          <Button variant="ghost" size="sm" onClick={handleRemoveCoupon} className="h-8 w-8 p-0">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Remove coupon</span>
+          </Button>
+        </div>
       )}
     </div>
   )
