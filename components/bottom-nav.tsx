@@ -32,13 +32,13 @@ export function BottomNav() {
                 ? "login"
                 : null
 
-  // Don't show bottom nav on business pages
-  if (pathname?.startsWith("/business")) {
+  // Don't show bottom nav on business pages or booking pages
+  if (pathname?.startsWith("/business") || pathname?.includes("/book")) {
     return null
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
       <div className="flex justify-around items-center h-16">
         <Link
           href="/"

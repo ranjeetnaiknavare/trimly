@@ -67,3 +67,13 @@
     scrollbar-width: none;
   }
 }
+
+.booking-page {
+  /* Ensure the booking page has proper spacing */
+  padding-bottom: 80px; /* Extra padding to account for the button */
+}
+
+/* Make the continue button more prominent */
+.booking-page .fixed.bottom-0 {
+  z-index: 50 !important; /* Ensure it's above other elements */
+}
