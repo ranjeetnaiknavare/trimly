@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { ArrowLeft, MapPin, Store, CheckCircle, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,9 +20,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { useAuth } from "@/components/auth/auth-context"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
+import { AgentReferralBanner } from "@/components/business/agent-referral-banner"
 
 export default function BusinessRegistrationPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user } = useAuth()
   const [step, setStep] = useState<"phone" | "otp" | "location" | "success">("phone")
   const [phoneNumber, setPhoneNumber] = useState("")
@@ -37,6 +41,21 @@ export default function BusinessRegistrationPage() {
     pincode: "",
   })
 
+  // Agent referral tracking
+  const [agentReferralId, setAgentReferralId] = useState("")
+  const [isValidReferral, setIsValidReferral] = useState<boolean | null>(null)
+  const [showReferralInput, setShowReferralInput] = useState(false)
+  const [agentReferralCode, setAgentReferralCode] = useState("")
+
+  // Check for referral ID in URL
+  useEffect(() => {
+    const refId = searchParams.get("ref")
+    if (refId) {
+      setAgentReferralId(refId)
+      validateAgentReferral(refId)
+    }
+  }, [searchParams])
+
   // Redirect if already logged in
   useEffect(() => {
     if (user && user.role === "business") {
@@ -48,6 +67,25 @@ export default function BusinessRegistrationPage() {
     const value = e.target.value.replace(/\D/g, "") // Remove non-digits
     if (value.length <= 10) {
       setPhoneNumber(value)
+    }
+  }
+
+  const validateAgentReferral = (id: string) => {
+    // In a real app, this would make an API call to validate the agent ID
+    // For demo purposes, we'll simulate a valid referral if it starts with "TRA-"
+    const isValid = id.startsWith("TRA-")
+    setIsValidReferral(isValid)
+    return isValid
+  }
+
+  const handleReferralChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.toUpperCase()
+    setAgentReferralId(value)
+
+    if (value.length >= 5) {
+      validateAgentReferral(value)
+    } else {
+      setIsValidReferral(null)
     }
   }
 
@@ -128,51 +166,122 @@ export default function BusinessRegistrationPage() {
     router.push("/business/register/complete")
   }
 
+  const handleApplyReferralCode = (code: string) => {
+    setAgentReferralCode(code)
+    // In a real app, you might store this in form data or context
+  }
+
   const renderPhoneStep = () => (
     <form onSubmit={handlePhoneSubmit}>
-      <Card className="border-none shadow-none">
-        <CardHeader className="space-y-1 p-0 mb-4">
-          <CardTitle className="text-2xl font-bold">Quick Registration</CardTitle>
-          <CardDescription>Enter your phone number to get started. We'll send you an OTP to verify.</CardDescription>
-        </CardHeader>
-        <CardContent className="p-0 space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number</Label>
-            <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-rose-500 focus-within:border-rose-500">
-              <div className="px-3 py-2 bg-gray-50 text-gray-500 border-r rounded-l-md">+91</div>
+      <div className="space-y-6">
+        <AgentReferralBanner onApply={handleApplyReferralCode} />
+        <Card className="border-none shadow-none">
+          <CardHeader className="space-y-1 p-0 mb-4">
+            <CardTitle className="text-2xl font-bold">Quick Registration</CardTitle>
+            <CardDescription>Enter your phone number to get started. We'll send you an OTP to verify.</CardDescription>
+          </CardHeader>
+          <CardContent className="p-0 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone Number</Label>
+              <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-rose-500 focus-within:border-rose-500">
+                <div className="px-3 py-2 bg-gray-50 text-gray-500 border-r rounded-l-md">+91</div>
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="10-digit number"
+                  value={phoneNumber}
+                  onChange={handlePhoneChange}
+                  className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                  required
+                  maxLength={10}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="businessName">Business Name</Label>
               <Input
-                id="phone"
-                type="tel"
-                placeholder="10-digit number"
-                value={phoneNumber}
-                onChange={handlePhoneChange}
-                className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                id="businessName"
+                placeholder="e.g. Royal Gents Salon"
+                value={businessName}
+                onChange={(e) => setBusinessName(e.target.value)}
                 required
-                maxLength={10}
               />
             </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="businessName">Business Name</Label>
-            <Input
-              id="businessName"
-              placeholder="e.g. Royal Gents Salon"
-              value={businessName}
-              onChange={(e) => setBusinessName(e.target.value)}
-              required
-            />
-          </div>
-        </CardContent>
-        <CardFooter className="p-0 mt-6">
-          <Button
-            type="submit"
-            className="w-full bg-rose-600 hover:bg-rose-700"
-            disabled={isLoading || !phoneNumber || phoneNumber.length < 10 || !businessName}
-          >
-            {isLoading ? "Sending OTP..." : "Get OTP"}
-          </Button>
-        </CardFooter>
-      </Card>
+
+            {/* Agent Referral Section */}
+            {agentReferralId ? (
+              <div className="space-y-2">
+                <Label htmlFor="agentReferral">Agent Referral</Label>
+                <div className="flex items-center">
+                  <Input
+                    id="agentReferral"
+                    value={agentReferralId}
+                    onChange={handleReferralChange}
+                    className={`${
+                      isValidReferral === true
+                        ? "border-green-500 focus-visible:ring-green-500"
+                        : isValidReferral === false
+                          ? "border-red-500 focus-visible:ring-red-500"
+                          : ""
+                    }`}
+                    disabled={isValidReferral === true}
+                  />
+                  {isValidReferral === true && <CheckCircle className="h-5 w-5 text-green-500 ml-2" />}
+                </div>
+                {isValidReferral === true && <p className="text-xs text-green-600">Valid agent referral</p>}
+                {isValidReferral === false && <p className="text-xs text-red-600">Invalid agent referral code</p>}
+              </div>
+            ) : (
+              <>
+                {showReferralInput ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="agentReferral">Agent Referral Code (Optional)</Label>
+                    <Input
+                      id="agentReferral"
+                      placeholder="e.g. TRA-123456"
+                      value={agentReferralId}
+                      onChange={handleReferralChange}
+                      className={`${
+                        isValidReferral === true
+                          ? "border-green-500 focus-visible:ring-green-500"
+                          : isValidReferral === false
+                            ? "border-red-500 focus-visible:ring-red-500"
+                            : ""
+                      }`}
+                    />
+                    {isValidReferral === true && <p className="text-xs text-green-600">Valid agent referral</p>}
+                    {isValidReferral === false && <p className="text-xs text-red-600">Invalid agent referral code</p>}
+                  </div>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="p-0 h-auto text-rose-600"
+                    onClick={() => setShowReferralInput(true)}
+                  >
+                    Have an agent referral code?
+                  </Button>
+                )}
+              </>
+            )}
+          </CardContent>
+          <CardFooter className="p-0 mt-6">
+            <Button
+              type="submit"
+              className="w-full bg-rose-600 hover:bg-rose-700"
+              disabled={
+                isLoading ||
+                !phoneNumber ||
+                phoneNumber.length < 10 ||
+                !businessName ||
+                (agentReferralId && isValidReferral === false)
+              }
+            >
+              {isLoading ? "Sending OTP..." : "Get OTP"}
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
     </form>
   )
 
@@ -254,6 +363,16 @@ export default function BusinessRegistrationPage() {
               </div>
             </div>
           )}
+
+          {/* Display agent referral if present */}
+          {agentReferralId && isValidReferral && (
+            <Alert className="bg-blue-50 border-blue-200">
+              <AlertCircle className="h-4 w-4 text-blue-600" />
+              <AlertDescription className="text-blue-800">
+                Your registration is linked to agent {agentReferralId}
+              </AlertDescription>
+            </Alert>
+          )}
         </CardContent>
         <CardFooter className="p-0 mt-6">
           <Button
@@ -295,6 +414,15 @@ export default function BusinessRegistrationPage() {
               <CheckCircle className="h-5 w-5 text-green-500" />
             </div>
           </div>
+
+          {/* Display agent referral if present */}
+          {agentReferralId && isValidReferral && (
+            <div className="border rounded-lg p-4 bg-blue-50">
+              <p className="text-sm">
+                <span className="font-medium">Agent Referral:</span> {agentReferralId}
+              </p>
+            </div>
+          )}
         </div>
       </CardContent>
       <CardFooter className="p-0 mt-6 flex flex-col space-y-3">

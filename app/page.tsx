@@ -9,6 +9,7 @@ import { PromotionBanner } from "@/components/promotion-banner"
 import { BottomNav } from "@/components/bottom-nav"
 import { TrimlyLogo } from "@/components/trimly-logo"
 import { QueueInfoTooltip } from "@/components/queue-info-tooltip"
+import { AgentRegistrationBanner } from "@/components/agent-registration-banner"
 
 export default function HomePage() {
   return (
@@ -252,6 +253,11 @@ export default function HomePage() {
               </CardContent>
             </Card>
           </Link>
+        </div>
+
+        {/* Add the agent registration banner */}
+        <div className="container px-4 py-8">
+          <AgentRegistrationBanner />
         </div>
       </main>
 

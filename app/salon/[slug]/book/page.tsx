@@ -270,7 +270,7 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
         </div>
       </header>
 
-      <main className="flex-1 container px-4 py-6">
+      <main className="flex-1 container px-4 py-6 pb-24">
         {/* Step 1: Select Services */}
         {step === 1 && (
           <div className="space-y-6">
@@ -283,16 +283,6 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                 onToggle={handleServiceToggle}
               />
             </div>
-
-            {/* In-section continue button */}
-            <Button
-              className="w-full bg-rose-600 hover:bg-rose-700 mt-4"
-              disabled={!canProceedToStep2}
-              onClick={() => setStep(step + 1)}
-            >
-              Continue to {bookingType === "queue" ? "Queue Information" : "Select Date & Time"}
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
           </div>
         )}
 
@@ -346,16 +336,6 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                 </div>
               )}
             </div>
-
-            {/* In-section continue button */}
-            <Button
-              className="w-full bg-rose-600 hover:bg-rose-700 mt-4"
-              disabled={!canProceedToStep3}
-              onClick={() => setStep(step + 1)}
-            >
-              Continue to Select People
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
           </div>
         )}
 
@@ -371,16 +351,6 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                 onToggle={handleFamilyMemberToggle}
               />
             </div>
-
-            {/* In-section continue button */}
-            <Button
-              className="w-full bg-rose-600 hover:bg-rose-700 mt-4"
-              disabled={!canProceedToStep4}
-              onClick={() => setStep(step + 1)}
-            >
-              Continue to Review & Confirm
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
           </div>
         )}
 
@@ -413,14 +383,55 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                 <TipSelector selectedAmount={tipAmount} onChange={handleTipChange} baseAmount={finalAmount} />
               </div>
             </div>
-
-            {/* In-section confirm button */}
-            <Button className="w-full bg-rose-600 hover:bg-rose-700 mt-4" onClick={handleBookingSubmit}>
-              Confirm Booking
-              <Check className="ml-2 h-4 w-4" />
-            </Button>
           </div>
         )}
+        {/* Sticky continue button - always visible */}
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-lg z-20">
+          <div className="container mx-auto">
+            {step === 1 && (
+              <Button
+                className="w-full bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white font-medium py-3 rounded-lg shadow-md transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                disabled={!canProceedToStep2}
+                onClick={() => setStep(step + 1)}
+              >
+                Continue to {bookingType === "queue" ? "Queue Information" : "Select Date & Time"}
+                <ArrowRight className="ml-2 h-4 w-4 animate-pulse" />
+              </Button>
+            )}
+
+            {step === 2 && (
+              <Button
+                className="w-full bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white font-medium py-3 rounded-lg shadow-md transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                disabled={!canProceedToStep3}
+                onClick={() => setStep(step + 1)}
+              >
+                Continue to Select People
+                <ArrowRight className="ml-2 h-4 w-4 animate-pulse" />
+              </Button>
+            )}
+
+            {step === 3 && (
+              <Button
+                className="w-full bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white font-medium py-3 rounded-lg shadow-md transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                disabled={!canProceedToStep4}
+                onClick={() => setStep(step + 1)}
+              >
+                Continue to Review & Confirm
+                <ArrowRight className="ml-2 h-4 w-4 animate-pulse" />
+              </Button>
+            )}
+
+            {step === 4 && (
+              <Button
+                className="w-full bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white font-medium py-3 rounded-lg shadow-md transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                onClick={handleBookingSubmit}
+              >
+                Confirm Booking
+                <Check className="ml-2 h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        </div>
       </main>
     </div>
   )

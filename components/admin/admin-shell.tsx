@@ -1,8 +1,8 @@
-"use client"
+import { useEffect } from "react"
+import { useState } from "react"
+;('"use client')
 
 import type React from "react"
-
-import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useAdmin } from "./admin-context"
@@ -38,7 +38,7 @@ interface AdminShellProps {
   requiredPermission?: string
 }
 
-export default function AdminShell({ children, requiredPermission }: AdminShellProps) {
+export function AdminShell({ children, requiredPermission }: AdminShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
   const pathname = usePathname()
@@ -217,3 +217,5 @@ export default function AdminShell({ children, requiredPermission }: AdminShellP
     </ProtectedRoute>
   )
 }
+
+export default AdminShell

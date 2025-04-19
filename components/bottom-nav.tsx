@@ -24,8 +24,8 @@ export function BottomNav() {
         ? "explore"
         : pathname === "/profile"
           ? "profile"
-          : pathname === "/profile?tab=bookings"
-            ? "bookings"
+          : pathname === "/jobs"
+            ? "jobs"
             : pathname === "/ads"
               ? "ads"
               : pathname === "/login"
@@ -59,13 +59,13 @@ export function BottomNav() {
           <span className="text-xs mt-1">Explore</span>
         </Link>
         <Link
-          href="/profile?tab=bookings"
+          href="/jobs"
           className={`flex flex-col items-center justify-center w-full h-full ${
-            active === "bookings" ? "text-rose-600" : "text-gray-500"
+            active === "jobs" ? "text-rose-600" : "text-gray-500"
           }`}
         >
           <Calendar className="h-5 w-5" />
-          <span className="text-xs mt-1">Bookings</span>
+          <span className="text-xs mt-1">Jobs</span>
         </Link>
         <Link
           href="/ads"
@@ -96,7 +96,7 @@ export function BottomNav() {
                 <Link href="/profile">Profile</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/profile?tab=bookings">My Bookings</Link>
+                <Link href="/jobs">Jobs</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/notifications">Notifications</Link>
